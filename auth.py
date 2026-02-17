@@ -28,6 +28,17 @@ def hash_senha(senha):
     """Cria um hash da senha para armazenamento seguro"""
     return hashlib.sha256(senha.encode()).hexdigest()
 
+def get_usuario_id(usuario):
+    """Retorna o ID do usuário a partir do nome"""
+    conn = conectar()
+    cursor = conn.cursor()
+    
+    cursor.execute('SELECT id FROM usuarios WHERE usuario = ?', (usuario,))
+    resultado = cursor.fetchone()
+    
+    conn.close()
+    return resultado[0] if resultado else None
+
 def criar_usuario(usuario, senha, nome_completo="", email=""):
     """Cria um novo usuário no sistema"""
     conn = conectar()

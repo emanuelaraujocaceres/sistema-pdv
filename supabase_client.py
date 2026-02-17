@@ -41,18 +41,29 @@ def usuario_existe(usuario):
     response = supabase.table("usuarios").select("id").eq("usuario", usuario).execute()
     return len(response.data) > 0
 
+def get_usuario_id(usuario):
+    """Retorna o ID do usuário a partir do nome de usuário"""
+    response = supabase.table("usuarios").select("id").eq("usuario", usuario).execute()
+    if response.data:
+        return response.data[0]["id"]
+    return None
+
 # ========== PRODUTOS ==========
-def listar_produtos():
-    response = supabase.table("produtos").select("*").order("nome").execute()
+def listar_produtos(user_id):
+    """Lista apenas produtos do usuário atual"""
+    response = supabase.table("produtos").select("*").eq("user_id", user_id).order("nome").execute()
     return pd.DataFrame(response.data) if response.data else pd.DataFrame()
 
-def listar_produtos_com_estoque():
-    response = supabase.table("produtos").select("*").gt("quantidade", 0).order("nome").execute()
+def listar_produtos_com_estoque(user_id):
+    """Lista apenas produtos com estoque do usuário atual"""
+    response = supabase.table("produtos").select("*").eq("user_id", user_id).gt("quantidade", 0).order("nome").execute()
     return pd.DataFrame(response.data) if response.data else pd.DataFrame()
 
-def criar_produto(codigo, nome, descricao, preco, quantidade, categoria):
+def criar_produto(user_id, codigo, nome, descricao, preco, quantidade, categoria):
+    """Cria produto vinculado ao usuário atual"""
     try:
         data = supabase.table("produtos").insert({
+            "user_id": user_id,
             "codigo": codigo,
             "nome": nome,
             "descricao": descricao,
@@ -64,7 +75,8 @@ def criar_produto(codigo, nome, descricao, preco, quantidade, categoria):
     except Exception as e:
         return False, f"❌ Erro: {str(e)}"
 
-def atualizar_produto(id, codigo, nome, descricao, preco, quantidade, categoria):
+def atualizar_produto(user_id, id, codigo, nome, descricao, preco, quantidade, categoria):
+    """Atualiza produto apenas se pertencer ao usuário"""
     try:
         data = supabase.table("produtos").update({
             "codigo": codigo,
@@ -73,32 +85,36 @@ def atualizar_produto(id, codigo, nome, descricao, preco, quantidade, categoria)
             "preco": preco,
             "quantidade": quantidade,
             "categoria": categoria
-        }).eq("id", id).execute()
+        }).eq("id", id).eq("user_id", user_id).execute()
         return True, "✅ Produto atualizado!"
     except Exception as e:
         return False, f"❌ Erro: {str(e)}"
 
-def excluir_produto(id):
+def excluir_produto(user_id, id):
+    """Exclui produto apenas se pertencer ao usuário"""
     try:
-        data = supabase.table("produtos").delete().eq("id", id).execute()
+        data = supabase.table("produtos").delete().eq("id", id).eq("user_id", user_id).execute()
         return True, "✅ Produto excluído!"
     except Exception as e:
         return False, f"❌ Erro: {str(e)}"
 
-def dar_baixa_estoque(produto_id, quantidade_vendida):
-    response = supabase.table("produtos").select("quantidade").eq("id", produto_id).execute()
+def dar_baixa_estoque(user_id, produto_id, quantidade_vendida):
+    """Dá baixa no estoque apenas se o produto pertencer ao usuário"""
+    response = supabase.table("produtos").select("quantidade").eq("id", produto_id).eq("user_id", user_id).execute()
     if response.data:
         estoque_atual = response.data[0]["quantidade"]
         novo_estoque = estoque_atual - quantidade_vendida
-        supabase.table("produtos").update({"quantidade": novo_estoque}).eq("id", produto_id).execute()
+        supabase.table("produtos").update({"quantidade": novo_estoque}).eq("id", produto_id).eq("user_id", user_id).execute()
         return True
     return False
 
 # ========== VENDAS ==========
-def criar_venda(total, forma_pagamento, itens):
+def criar_venda(user_id, total, forma_pagamento, itens):
+    """Cria venda vinculada ao usuário"""
     try:
         # Criar venda
         venda = supabase.table("vendas").insert({
+            "user_id": user_id,
             "total": total,
             "forma_pagamento": forma_pagamento
         }).execute()
@@ -108,6 +124,7 @@ def criar_venda(total, forma_pagamento, itens):
         # Inserir itens
         for item in itens:
             supabase.table("itens_venda").insert({
+                "user_id": user_id,
                 "venda_id": venda_id,
                 "produto_id": item['id'],
                 "quantidade": item['quantidade'],
@@ -116,14 +133,16 @@ def criar_venda(total, forma_pagamento, itens):
             }).execute()
             
             # Dar baixa no estoque
-            dar_baixa_estoque(item['id'], item['quantidade'])
+            dar_baixa_estoque(user_id, item['id'], item['quantidade'])
         
         return True, "✅ Venda finalizada!"
     except Exception as e:
         return False, f"❌ Erro: {str(e)}"
 
-def listar_vendas(data_inicio, data_fim):
+def listar_vendas(user_id, data_inicio, data_fim):
+    """Lista vendas do usuário em um período"""
     response = supabase.table("vendas").select("*")\
+        .eq("user_id", user_id)\
         .gte("data_hora", f"{data_inicio}T00:00:00")\
         .lte("data_hora", f"{data_fim}T23:59:59")\
         .order("data_hora", desc=True).execute()

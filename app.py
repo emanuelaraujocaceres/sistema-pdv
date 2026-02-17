@@ -9,12 +9,20 @@ import auth  # Módulo de autenticação
 # Criar tabela de usuários (se não existir)
 auth.criar_tabela_usuarios()
 
+# Função auxiliar para pegar o ID do usuário atual
+def get_current_user_id():
+    """Retorna o ID do usuário logado"""
+    if st.session_state.autenticado:
+        return auth.get_usuario_id(st.session_state.username)
+    return None
+
 # Forçar atualização dos dados sempre que a página carregar
 @st.cache_data(ttl=0)  # ttl=0 significa "não fazer cache"
-def carregar_dados():
-    """Carrega dados atualizados do banco"""
+def carregar_dados(user_id):
+    """Carrega dados atualizados do banco APENAS do usuário atual"""
     conn = banco.conectar()
-    produtos = pd.read_sql_query("SELECT * FROM produtos ORDER BY nome", conn)
+    query = "SELECT * FROM produtos WHERE user_id = ? ORDER BY nome"
+    produtos = pd.read_sql_query(query, conn, params=(user_id,))
     conn.close()
     return produtos
 
@@ -30,6 +38,8 @@ if 'autenticado' not in st.session_state:
     st.session_state.autenticado = False
 if 'username' not in st.session_state:
     st.session_state.username = ""
+if 'user_id' not in st.session_state:
+    st.session_state.user_id = None
 if 'menu' not in st.session_state:
     st.session_state.menu = "🏠 Dashboard"
 if 'codigo_auto' not in st.session_state:
@@ -212,6 +222,7 @@ if not st.session_state.autenticado:
                     if auth.verificar_login(usuario, senha):
                         st.session_state.autenticado = True
                         st.session_state.username = usuario
+                        st.session_state.user_id = auth.get_usuario_id(usuario)
                         st.session_state.menu = "🏠 Dashboard"
                         st.rerun()
                     else:
@@ -298,6 +309,7 @@ with st.sidebar:
     if st.button("🚪 Sair", use_container_width=True, type="secondary"):
         st.session_state.autenticado = False
         st.session_state.username = ""
+        st.session_state.user_id = None
         st.session_state.menu = "🏠 Dashboard"
         st.session_state.carrinho = []
         st.rerun()
@@ -312,7 +324,7 @@ st.markdown("---")
 if st.session_state.menu == "🏠 Dashboard":
     st.header("📊 Dashboard")
     
-    produtos = carregar_dados()
+    produtos = carregar_dados(st.session_state.user_id)
     
     if not produtos.empty:
         # Métricas principais
@@ -327,9 +339,10 @@ if st.session_state.menu == "🏠 Dashboard":
             st.metric("Valor em Estoque", f"R$ {valor_total:.2f}")
         
         # Gráfico de distribuição
-        fig = px.pie(produtos, names='categoria', values='quantidade',
-                    title="Distribuição do Estoque por Categoria")
-        st.plotly_chart(fig, use_container_width=True)
+        if not produtos.empty and 'categoria' in produtos.columns:
+            fig = px.pie(produtos, names='categoria', values='quantidade',
+                        title="Distribuição do Estoque por Categoria")
+            st.plotly_chart(fig, use_container_width=True)
     else:
         st.info("📭 Nenhum produto cadastrado ainda. Acesse 'Controle de Estoque' para começar!")
 
@@ -400,16 +413,18 @@ elif st.session_state.menu == "📦 Controle de Estoque":
                     conn = banco.conectar()
                     cursor = conn.cursor()
                     try:
-                        cursor.execute("SELECT id FROM produtos WHERE codigo = ?", (codigo,))
+                        # Verificar se código já existe para este usuário
+                        cursor.execute("SELECT id FROM produtos WHERE codigo = ? AND user_id = ?", 
+                                     (codigo, st.session_state.user_id))
                         if cursor.fetchone():
-                            st.error(f"❌ Código '{codigo}' já existe! Use um código diferente.")
+                            st.error(f"❌ Código '{codigo}' já existe para sua conta! Use um código diferente.")
                             # Gerar novo código automaticamente
                             st.session_state.codigo_auto = gerar_codigo(nome)
                         else:
                             cursor.execute('''
-                                INSERT INTO produtos (codigo, nome, descricao, preco, quantidade, categoria)
-                                VALUES (?, ?, ?, ?, ?, ?)
-                            ''', (codigo, nome, descricao, preco, quantidade, categoria))
+                                INSERT INTO produtos (codigo, nome, descricao, preco, quantidade, categoria, user_id)
+                                VALUES (?, ?, ?, ?, ?, ?, ?)
+                            ''', (codigo, nome, descricao, preco, quantidade, categoria, st.session_state.user_id))
                             conn.commit()
                             st.success(f"✅ Produto {nome} cadastrado com sucesso!")
                             st.balloons()
@@ -438,7 +453,7 @@ elif st.session_state.menu == "📦 Controle de Estoque":
     with aba2:
         st.subheader("📋 Produtos Cadastrados")
         
-        produtos = carregar_dados()  # Dados SEMPRE atualizados
+        produtos = carregar_dados(st.session_state.user_id)  # Dados do usuário atual
         
         if not produtos.empty:
             # Selecionar apenas as colunas desejadas (sem o ID)
@@ -480,7 +495,8 @@ elif st.session_state.menu == "📦 Controle de Estoque":
         
         # Conectar ao banco
         conn = banco.conectar()
-        produtos = pd.read_sql_query("SELECT * FROM produtos ORDER BY nome", conn)
+        query = "SELECT * FROM produtos WHERE user_id = ? ORDER BY nome"
+        produtos = pd.read_sql_query(query, conn, params=(st.session_state.user_id,))
         conn.close()
         
         if not produtos.empty:
@@ -524,8 +540,9 @@ elif st.session_state.menu == "📦 Controle de Estoque":
                                 cursor.execute('''
                                     UPDATE produtos 
                                     SET codigo=?, nome=?, descricao=?, preco=?, quantidade=?, categoria=?
-                                    WHERE id=?
-                                ''', (novo_codigo, novo_nome, nova_descricao, novo_preco, nova_quantidade, nova_categoria, produto_para_editar))
+                                    WHERE id=? AND user_id=?
+                                ''', (novo_codigo, novo_nome, nova_descricao, novo_preco, nova_quantidade, nova_categoria, 
+                                     produto_para_editar, st.session_state.user_id))
                                 conn.commit()
                                 st.success("✅ Produto atualizado com sucesso!")
                                 st.rerun()
@@ -539,7 +556,8 @@ elif st.session_state.menu == "📦 Controle de Estoque":
                             conn = banco.conectar()
                             cursor = conn.cursor()
                             try:
-                                cursor.execute("DELETE FROM produtos WHERE id=?", (produto_para_editar,))
+                                cursor.execute("DELETE FROM produtos WHERE id=? AND user_id=?", 
+                                             (produto_para_editar, st.session_state.user_id))
                                 conn.commit()
                                 st.success("✅ Produto excluído com sucesso!")
                                 st.rerun()
@@ -564,10 +582,8 @@ elif st.session_state.menu == "💵 PDV (Ponto de Venda)":
         st.subheader("📦 Produtos Disponíveis")
         
         conn = banco.conectar()
-        produtos = pd.read_sql_query(
-            "SELECT * FROM produtos WHERE quantidade > 0 ORDER BY nome", 
-            conn
-        )
+        query = "SELECT * FROM produtos WHERE quantidade > 0 AND user_id = ? ORDER BY nome"
+        produtos = pd.read_sql_query(query, conn, params=(st.session_state.user_id,))
         conn.close()
         
         if not produtos.empty:
@@ -669,11 +685,11 @@ elif st.session_state.menu == "💵 PDV (Ponto de Venda)":
                 cursor = conn.cursor()
                 
                 try:
-                    # 1. Criar a venda
+                    # 1. Criar a venda (com user_id)
                     cursor.execute('''
-                        INSERT INTO vendas (data_hora, total, forma_pagamento)
-                        VALUES (datetime('now', 'localtime'), ?, ?)
-                    ''', (total, forma_pagamento))
+                        INSERT INTO vendas (data_hora, total, forma_pagamento, user_id)
+                        VALUES (datetime('now', 'localtime'), ?, ?, ?)
+                    ''', (total, forma_pagamento, st.session_state.user_id))
                     
                     venda_id = cursor.lastrowid
                     
@@ -681,16 +697,17 @@ elif st.session_state.menu == "💵 PDV (Ponto de Venda)":
                     for item in st.session_state.carrinho:
                         # Inserir item da venda
                         cursor.execute('''
-                            INSERT INTO itens_venda (venda_id, produto_id, quantidade, preco_unitario, subtotal)
-                            VALUES (?, ?, ?, ?, ?)
-                        ''', (venda_id, item['id'], item['quantidade'], item['preco'], item['subtotal']))
+                            INSERT INTO itens_venda (venda_id, produto_id, quantidade, preco_unitario, subtotal, user_id)
+                            VALUES (?, ?, ?, ?, ?, ?)
+                        ''', (venda_id, item['id'], item['quantidade'], item['preco'], item['subtotal'], 
+                             st.session_state.user_id))
                         
-                        # Dar baixa no estoque
+                        # Dar baixa no estoque (apenas se o produto for do usuário)
                         cursor.execute('''
                             UPDATE produtos 
                             SET quantidade = quantidade - ? 
-                            WHERE id = ? AND quantidade >= ?
-                        ''', (item['quantidade'], item['id'], item['quantidade']))
+                            WHERE id = ? AND user_id = ? AND quantidade >= ?
+                        ''', (item['quantidade'], item['id'], st.session_state.user_id, item['quantidade']))
                         
                         # Verificar se a baixa funcionou
                         if cursor.rowcount == 0:
@@ -743,7 +760,7 @@ elif st.session_state.menu == "📊 Relatórios":
         if st.button("📊 Gerar Relatório", use_container_width=True):
             conn = banco.conectar()
             
-            # Consultar vendas do período
+            # Consultar vendas do período (apenas do usuário atual)
             query = '''
                 SELECT 
                     v.id,
@@ -753,12 +770,12 @@ elif st.session_state.menu == "📊 Relatórios":
                     COUNT(iv.id) as itens
                 FROM vendas v
                 LEFT JOIN itens_venda iv ON v.id = iv.venda_id
-                WHERE DATE(v.data_hora) BETWEEN DATE(?) AND DATE(?)
+                WHERE v.user_id = ? AND DATE(v.data_hora) BETWEEN DATE(?) AND DATE(?)
                 GROUP BY v.id
                 ORDER BY v.data_hora DESC
             '''
             
-            vendas = pd.read_sql_query(query, conn, params=(data_inicio, data_fim))
+            vendas = pd.read_sql_query(query, conn, params=(st.session_state.user_id, data_inicio, data_fim))
             
             if not vendas.empty:
                 # Totais
@@ -810,7 +827,7 @@ elif st.session_state.menu == "📊 Relatórios":
     elif tipo_relatorio == "Produtos":
         st.subheader("📦 Produtos")
         
-        produtos = carregar_dados()
+        produtos = carregar_dados(st.session_state.user_id)
         
         if not produtos.empty:
             # Calcular valor total do estoque
