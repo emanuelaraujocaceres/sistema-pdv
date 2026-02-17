@@ -10,7 +10,6 @@ def criar_tabela_usuarios():
     conn = conectar()
     cursor = conn.cursor()
     
-    # Verificar se a tabela já existe
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS usuarios (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -36,7 +35,6 @@ def criar_usuario(usuario, senha, nome_completo="", email=""):
     
     try:
         senha_hash = hash_senha(senha)
-        # APENAS UMA linha de inserção (a correta, com hash)
         cursor.execute('''
             INSERT INTO usuarios (usuario, senha, nome_completo, email)
             VALUES (?, ?, ?, ?)
