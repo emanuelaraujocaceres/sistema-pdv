@@ -170,6 +170,22 @@ st.markdown("""
         color: #aaa !important;
         opacity: 1;
     }
+    
+    /* Habilitar pull-to-refresh no celular */
+    body {
+        overscroll-behavior: auto !important;
+    }
+    
+    /* Garantir que o scroll funcione corretamente */
+    .main > div {
+        overscroll-behavior: contain;
+    }
+    
+    /* Melhorar a experiência de scroll no celular */
+    .stApp {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -260,6 +276,22 @@ if not st.session_state.autenticado:
 
 # ========== SISTEMA PRINCIPAL (APÓS LOGIN) ==========
 
+# Função para fechar o menu no celular
+def close_sidebar():
+    st.markdown("""
+    <script>
+        // Força o fechamento da sidebar no celular
+        if (window.innerWidth < 768) {
+            setTimeout(function() {
+                let closeBtn = document.querySelector('[data-testid="collapsed-control"]');
+                if (closeBtn && !document.querySelector('[data-testid="stSidebar"]').classList.contains('collapsed')) {
+                    closeBtn.click();
+                }
+            }, 100);
+        }
+    </script>
+    """, unsafe_allow_html=True)
+
 # Menu lateral com BOTÕES (não mais selectbox)
 with st.sidebar:
     st.image("https://img.icons8.com/color/96/000000/shop.png", width=80)
@@ -270,26 +302,31 @@ with st.sidebar:
     if st.button("🏠 Dashboard", use_container_width=True, 
                 type="primary" if st.session_state.menu == "🏠 Dashboard" else "secondary"):
         st.session_state.menu = "🏠 Dashboard"
+        close_sidebar()
         st.rerun()
     
     if st.button("📦 Controle de Estoque", use_container_width=True,
                 type="primary" if st.session_state.menu == "📦 Controle de Estoque" else "secondary"):
         st.session_state.menu = "📦 Controle de Estoque"
+        close_sidebar()
         st.rerun()
     
     if st.button("💵 PDV (Ponto de Venda)", use_container_width=True,
                 type="primary" if st.session_state.menu == "💵 PDV (Ponto de Venda)" else "secondary"):
         st.session_state.menu = "💵 PDV (Ponto de Venda)"
+        close_sidebar()
         st.rerun()
     
     if st.button("📊 Relatórios", use_container_width=True,
                 type="primary" if st.session_state.menu == "📊 Relatórios" else "secondary"):
         st.session_state.menu = "📊 Relatórios"
+        close_sidebar()
         st.rerun()
     
     if st.button("⚙️ Configurações", use_container_width=True,
                 type="primary" if st.session_state.menu == "⚙️ Configurações" else "secondary"):
         st.session_state.menu = "⚙️ Configurações"
+        close_sidebar()
         st.rerun()
     
     st.markdown("---")
@@ -301,12 +338,18 @@ with st.sidebar:
         st.session_state.user_id = None
         st.session_state.menu = "🏠 Dashboard"
         st.session_state.carrinho = []
+        close_sidebar()
         st.rerun()
     
     st.caption("Sistema Profissional v1.0")
 
-# Título principal
-st.title(f"💰 Sistema de Controle - {st.session_state.username}")
+# Título principal com botão de atualização
+col_title, col_refresh = st.columns([3, 1])
+with col_title:
+    st.title(f"💰 Sistema de Controle - {st.session_state.username}")
+with col_refresh:
+    if st.button("🔄 Atualizar", use_container_width=True):
+        st.rerun()
 st.markdown("---")
 
 # ========== DASHBOARD ==========
