@@ -339,6 +339,18 @@ st.markdown("""
 <div class="conteudo">
 """, unsafe_allow_html=True)
 
+# Corrigir exibição do nome do usuário logado
+usuario_logado = st.session_state.username if st.session_state.username else "Usuário"
+
+# Remover o quadrado branco adicionando estilos para ocultar elementos desnecessários
+st.markdown("""
+<style>
+    .block-container {
+        padding-top: 0 !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # Remover completamente o uso de st.experimental_set_query_params()
 # Gerenciar a navegação e o estado da página apenas com st.session_state
 
