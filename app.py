@@ -165,7 +165,7 @@ st.markdown("""
     }
     
     .conteudo {
-        margin-top: 60px !important; /* Ajustar para evitar sobreposição */
+        margin-top: 90px;
         padding: 30px;
         background-color: #f8f9fa;
         min-height: calc(100vh - 90px);
@@ -334,6 +334,17 @@ st.markdown("""
 <div class="menu-superior">
     <div class="menu-links">
         <span class="usuario-info">👤 {st.session_state.username if st.session_state.get('autenticado', False) else 'Usuário não logado'}</span>
+        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Dashboard' else ''}" 
+                onclick="window.location.href='?pagina=Dashboard'">🏠 Dashboard</button>
+        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Estoque' else ''}" 
+                onclick="window.location.href='?pagina=Estoque'">📦 Estoque</button>
+        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'PDV' else ''}" 
+                onclick="window.location.href='?pagina=PDV'">💵 PDV</button>
+        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Relatórios' else ''}" 
+                onclick="window.location.href='?pagina=Relatórios'">📊 Relatórios</button>
+        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Configurações' else ''}" 
+                onclick="window.location.href='?pagina=Configurações'">⚙️ Config.</button>
+        <button class="menu-link" onclick="window.location.href='?logout=true'">🚪 Sair</button>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -363,7 +374,10 @@ st.markdown("""
     }
 
     .conteudo {
-        margin-top: 60px !important; /* Ajustar para evitar sobreposição */
+        margin-top: 90px;
+        padding: 30px;
+        background-color: #f8f9fa;
+        min-height: calc(100vh - 90px);
     }
 </style>
 """, unsafe_allow_html=True)
