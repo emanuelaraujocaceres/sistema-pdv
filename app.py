@@ -339,8 +339,8 @@ st.markdown("""
 <div class="conteudo">
 """, unsafe_allow_html=True)
 
-# Remover o uso de st.experimental_set_query_params() e ajustar a navegação
-# Atualizar a página atual diretamente no estado da sessão
+# Remover completamente o uso de st.experimental_set_query_params()
+# Gerenciar a navegação e o estado da página apenas com st.session_state
 
 # Substituir os botões para refletir a navegação sem query params
 col1, col2, col3, col4, col5, col6 = st.columns(6)
@@ -379,44 +379,10 @@ with col6:
         st.session_state.carrinho = []
         st.rerun()
 
-# Corrigir comportamento de F5 e pull-to-refresh
-query_params = st.experimental_get_query_params() if hasattr(st, 'experimental_get_query_params') else {}
+# Atualizar a página atual com base no estado da sessão
+pagina_atual = st.session_state.get("pagina_atual", "Login")
 
-if "pagina" in query_params:
-    pagina = query_params.get("pagina", [None])[0]
-    if pagina in ["Dashboard", "Estoque", "PDV", "Relatórios", "Configurações"]:
-        st.session_state.pagina_atual = pagina
-
-if "logout" in query_params:
-    st.session_state.autenticado = False
-    st.session_state.username = ""
-    st.session_state.user_id = None
-    st.session_state.pagina_atual = "Login"
-    st.session_state.carrinho = []
-    st.rerun()
-
-# Atualizar a página sem redirecionar para o login
-if not st.session_state.autenticado:
-    st.session_state.pagina_atual = "Login"
-    st.stop()
-
-# Atualizar a URL para refletir a página atual
-st.experimental_set_query_params(pagina=st.session_state.pagina_atual)
-
-# Substituir o menu HTML por botões Streamlit para evitar erros de React
-st.markdown("""
-<div class="menu-superior">
-    <div class="menu-links">
-        <span class="usuario-info">👤 {st.session_state.username}</span>
-    </div>
-</div>
-<div class="conteudo">
-""", unsafe_allow_html=True)
-
-# ========== CONTEÚDO DAS PÁGINAS ==========
-pagina_atual = st.session_state.pagina_atual
-
-# ===== DASHBOARD =====
+# Renderizar o conteúdo da página com base no estado atual
 if pagina_atual == "Dashboard":
     st.header("📊 Dashboard")
     
