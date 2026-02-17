@@ -339,14 +339,25 @@ st.markdown("""
 <div class="conteudo">
 """, unsafe_allow_html=True)
 
-# Corrigir exibição do nome do usuário logado
-usuario_logado = st.session_state.username if st.session_state.username else "Usuário"
+# Corrigir exibição do nome do usuário logado e remover espaço em branco
+usuario_logado = st.session_state.username if st.session_state.get('autenticado', False) and st.session_state.username else "Usuário não logado"
 
-# Remover o quadrado branco adicionando estilos para ocultar elementos desnecessários
+# Atualizar o HTML do menu superior para exibir o nome do usuário corretamente
+st.markdown(f"""
+<div class="menu-superior">
+    <div class="menu-links">
+        <span class="usuario-info">👤 {usuario_logado}</span>
+    </div>
+</div>
+<div class="conteudo">
+""", unsafe_allow_html=True)
+
+# Ajustar estilos para remover o espaço em branco no topo
 st.markdown("""
 <style>
     .block-container {
         padding-top: 0 !important;
+        margin-top: -50px !important;
     }
 </style>
 """, unsafe_allow_html=True)
