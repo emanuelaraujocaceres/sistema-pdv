@@ -339,36 +339,35 @@ st.markdown("""
 <div class="conteudo">
 """, unsafe_allow_html=True)
 
+# Remover o uso de st.experimental_set_query_params() e ajustar a navegação
+# Atualizar a página atual diretamente no estado da sessão
+
+# Substituir os botões para refletir a navegação sem query params
 col1, col2, col3, col4, col5, col6 = st.columns(6)
 
 with col1:
     if st.button("🏠 Dashboard", use_container_width=True):
         st.session_state.pagina_atual = "Dashboard"
-        st.experimental_set_query_params(pagina="Dashboard")
         st.rerun()
 
 with col2:
     if st.button("📦 Estoque", use_container_width=True):
         st.session_state.pagina_atual = "Estoque"
-        st.experimental_set_query_params(pagina="Estoque")
         st.rerun()
 
 with col3:
     if st.button("💵 PDV", use_container_width=True):
         st.session_state.pagina_atual = "PDV"
-        st.experimental_set_query_params(pagina="PDV")
         st.rerun()
 
 with col4:
     if st.button("📊 Relatórios", use_container_width=True):
         st.session_state.pagina_atual = "Relatórios"
-        st.experimental_set_query_params(pagina="Relatórios")
         st.rerun()
 
 with col5:
     if st.button("⚙️ Config.", use_container_width=True):
         st.session_state.pagina_atual = "Configurações"
-        st.experimental_set_query_params(pagina="Configurações")
         st.rerun()
 
 with col6:
@@ -378,7 +377,6 @@ with col6:
         st.session_state.user_id = None
         st.session_state.pagina_atual = "Login"
         st.session_state.carrinho = []
-        st.experimental_set_query_params()
         st.rerun()
 
 # Corrigir comportamento de F5 e pull-to-refresh
@@ -395,13 +393,11 @@ if "logout" in query_params:
     st.session_state.user_id = None
     st.session_state.pagina_atual = "Login"
     st.session_state.carrinho = []
-    st.experimental_set_query_params()
     st.rerun()
 
 # Atualizar a página sem redirecionar para o login
 if not st.session_state.autenticado:
     st.session_state.pagina_atual = "Login"
-    st.experimental_set_query_params(pagina="Login")
     st.stop()
 
 # Atualizar a URL para refletir a página atual
