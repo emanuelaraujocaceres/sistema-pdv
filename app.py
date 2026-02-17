@@ -19,7 +19,8 @@ def get_current_user_id():
 st.set_page_config(
     page_title="Sistema de Controle Profissional",
     page_icon="💰",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
 # Inicializar variáveis de sessão
@@ -37,6 +38,8 @@ if 'carrinho' not in st.session_state:
     st.session_state.carrinho = []
 if 'modo_login' not in st.session_state:
     st.session_state.modo_login = "login"  # "login" ou "criar"
+if 'sidebar_state' not in st.session_state:
+    st.session_state.sidebar_state = "expanded"
 
 # CSS personalizado global
 st.markdown("""
@@ -186,7 +189,45 @@ st.markdown("""
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
     }
+    
+    /* Forçar sidebar a recolher no celular após clique */
+    @media (max-width: 768px) {
+        [data-testid="stSidebar"][aria-expanded="true"] {
+            display: none;
+        }
+    }
 </style>
+
+<script>
+    // Função para recolher a sidebar automaticamente no celular
+    function collapseSidebar() {
+        if (window.innerWidth < 768) {
+            const sidebar = document.querySelector('[data-testid="stSidebar"]');
+            const collapseBtn = document.querySelector('[data-testid="collapsed-control"]');
+            if (sidebar && !sidebar.classList.contains('collapsed') && collapseBtn) {
+                setTimeout(() => {
+                    collapseBtn.click();
+                }, 100);
+            }
+        }
+    }
+    
+    // Executar quando a página carregar
+    document.addEventListener('DOMContentLoaded', collapseSidebar);
+    
+    // Executar quando a navegação mudar (para capturar cliques no menu)
+    const observer = new MutationObserver(function(mutations) {
+        collapseSidebar();
+    });
+    
+    // Observar mudanças no DOM
+    setTimeout(function() {
+        const sidebar = document.querySelector('[data-testid="stSidebar"]');
+        if (sidebar) {
+            observer.observe(sidebar, { childList: true, subtree: true, attributes: true });
+        }
+    }, 1000);
+</script>
 """, unsafe_allow_html=True)
 
 def gerar_codigo(nome_input):
@@ -276,23 +317,7 @@ if not st.session_state.autenticado:
 
 # ========== SISTEMA PRINCIPAL (APÓS LOGIN) ==========
 
-# Função para fechar o menu no celular
-def close_sidebar():
-    st.markdown("""
-    <script>
-        // Força o fechamento da sidebar no celular
-        if (window.innerWidth < 768) {
-            setTimeout(function() {
-                let closeBtn = document.querySelector('[data-testid="collapsed-control"]');
-                if (closeBtn && !document.querySelector('[data-testid="stSidebar"]').classList.contains('collapsed')) {
-                    closeBtn.click();
-                }
-            }, 100);
-        }
-    </script>
-    """, unsafe_allow_html=True)
-
-# Menu lateral com BOTÕES (não mais selectbox)
+# Menu lateral com BOTÕES
 with st.sidebar:
     st.image("https://img.icons8.com/color/96/000000/shop.png", width=80)
     st.title(f"👤 {st.session_state.username}")
@@ -302,31 +327,26 @@ with st.sidebar:
     if st.button("🏠 Dashboard", use_container_width=True, 
                 type="primary" if st.session_state.menu == "🏠 Dashboard" else "secondary"):
         st.session_state.menu = "🏠 Dashboard"
-        close_sidebar()
         st.rerun()
     
     if st.button("📦 Controle de Estoque", use_container_width=True,
                 type="primary" if st.session_state.menu == "📦 Controle de Estoque" else "secondary"):
         st.session_state.menu = "📦 Controle de Estoque"
-        close_sidebar()
         st.rerun()
     
     if st.button("💵 PDV (Ponto de Venda)", use_container_width=True,
                 type="primary" if st.session_state.menu == "💵 PDV (Ponto de Venda)" else "secondary"):
         st.session_state.menu = "💵 PDV (Ponto de Venda)"
-        close_sidebar()
         st.rerun()
     
     if st.button("📊 Relatórios", use_container_width=True,
                 type="primary" if st.session_state.menu == "📊 Relatórios" else "secondary"):
         st.session_state.menu = "📊 Relatórios"
-        close_sidebar()
         st.rerun()
     
     if st.button("⚙️ Configurações", use_container_width=True,
                 type="primary" if st.session_state.menu == "⚙️ Configurações" else "secondary"):
         st.session_state.menu = "⚙️ Configurações"
-        close_sidebar()
         st.rerun()
     
     st.markdown("---")
@@ -338,18 +358,12 @@ with st.sidebar:
         st.session_state.user_id = None
         st.session_state.menu = "🏠 Dashboard"
         st.session_state.carrinho = []
-        close_sidebar()
         st.rerun()
     
     st.caption("Sistema Profissional v1.0")
 
-# Título principal com botão de atualização
-col_title, col_refresh = st.columns([3, 1])
-with col_title:
-    st.title(f"💰 Sistema de Controle - {st.session_state.username}")
-with col_refresh:
-    if st.button("🔄 Atualizar", use_container_width=True):
-        st.rerun()
+# Título principal (sem botão de atualizar)
+st.title(f"💰 Sistema de Controle - {st.session_state.username}")
 st.markdown("---")
 
 # ========== DASHBOARD ==========
