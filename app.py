@@ -353,13 +353,13 @@ menu_html = f"""
 
 st.markdown(menu_html, unsafe_allow_html=True)
 
-# ========== PROCESSAR PARÂMETROS DA URL ==========
-query_params = st.query_params
+# Corrigir comportamento de F5 e pull-to-refresh
+query_params = st.experimental_get_query_params()
+
 if "pagina" in query_params:
     pagina = query_params["pagina"][0]
     if pagina in ["Dashboard", "Estoque", "PDV", "Relatórios", "Configurações"]:
         st.session_state.pagina_atual = pagina
-        st.rerun()
 
 if "logout" in query_params:
     st.session_state.autenticado = False
@@ -367,7 +367,41 @@ if "logout" in query_params:
     st.session_state.user_id = None
     st.session_state.pagina_atual = "Login"
     st.session_state.carrinho = []
+    st.experimental_set_query_params()
     st.rerun()
+
+# Atualizar a página sem redirecionar para o login
+if not st.session_state.autenticado:
+    st.session_state.pagina_atual = "Login"
+    st.experimental_set_query_params(pagina="Login")
+    st.stop()
+
+# Atualizar a URL para refletir a página atual
+st.experimental_set_query_params(pagina=st.session_state.pagina_atual)
+
+# Substituir os botões do menu para usar redirecionamento interno
+menu_html = f"""
+<div class="menu-superior">
+    <div class="menu-links">
+        <span class="usuario-info">👤 {st.session_state.username}</span>
+        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Dashboard' else ''}" 
+                onclick="window.location.href='?pagina=Dashboard'">🏠 Dashboard</button>
+        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Estoque' else ''}" 
+                onclick="window.location.href='?pagina=Estoque'">📦 Estoque</button>
+        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'PDV' else ''}" 
+                onclick="window.location.href='?pagina=PDV'">💵 PDV</button>
+        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Relatórios' else ''}" 
+                onclick="window.location.href='?pagina=Relatórios'">📊 Relatórios</button>
+        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Configurações' else ''}" 
+                onclick="window.location.href='?pagina=Configurações'">⚙️ Config.</button>
+        <button class="menu-link" onclick="window.location.href='?logout=true'">🚪 Sair</button>
+    </div>
+    <button class="botao-atualizar" onclick="location.reload()">🔄 Atualizar</button>
+</div>
+<div class="conteudo">
+"""
+
+st.markdown(menu_html, unsafe_allow_html=True)
 
 # ========== CONTEÚDO DAS PÁGINAS ==========
 pagina_atual = st.session_state.pagina_atual
