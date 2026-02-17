@@ -32,91 +32,215 @@ if 'carrinho' not in st.session_state:
     st.session_state.carrinho = []
 if 'modo_login' not in st.session_state:
     st.session_state.modo_login = "login"  # "login" ou "criar"
-if 'sidebar_should_close' not in st.session_state:
-    st.session_state.sidebar_should_close = False
 
 # CSS personalizado global
 st.markdown("""
 <style>
-    /* ===== REMOVER BOTÕES DO STREAMLIT ===== */
+    /* ===== REMOVER TODOS OS ELEMENTOS DO STREAMLIT ===== */
+    
+    /* Remover o header inteiro (barra superior) */
+    header[data-testid="stHeader"] {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        width: 0 !important;
+        position: absolute !important;
+        top: -9999px !important;
+        left: -9999px !important;
+    }
+    
+    /* Remover o footer "Made with Streamlit" */
+    footer {
+        display: none !important;
+        visibility: hidden !important;
+    }
+    
+    /* Remover todos os botões do header */
     .stApp header .stActionButton,
     .stApp header [data-testid="stActionButton"],
     .stApp header [aria-label="Share"],
     .stApp header [aria-label="Star"],
     .stApp header [aria-label="Edit app"],
     .stApp header [aria-label="Deploy"],
+    .stApp header [aria-label="Manage app"],
     button[kind="header"],
     button[kind="headerNoPadding"],
     button[title="Share"],
     button[title="Star"],
     button[title="Edit app"],
     button[title="Manage app"],
+    [data-testid="stStatusWidget"],
+    [data-testid="stActionButton"],
+    [data-testid="baseButton-header"],
+    [data-testid="baseButton-headerNoPadding"],
     .st-emotion-cache-1wrcr25,
     .st-emotion-cache-1miom6v,
     .st-emotion-cache-1miom6v a,
-    [data-testid="stStatusWidget"] {
+    .st-emotion-cache-18ni7ap,
+    .st-emotion-cache-1dp5yr8,
+    .st-emotion-cache-1qg05tj,
+    .st-emotion-cache-15ecur0 {
         display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        width: 0 !important;
+        height: 0 !important;
+        pointer-events: none !important;
     }
     
-    /* Deixar o header mais compacto */
-    .stApp header {
-        background-color: transparent !important;
-        height: 0 !important;
-        min-height: 0 !important;
+    /* Remover a imagem de perfil/foto do usuário */
+    [data-testid="stSidebarUserContent"] img,
+    .st-emotion-cache-1dp5yr8 img,
+    img[alt="profile picture"],
+    img[src*="avatars"],
+    img[src*="githubusercontent"],
+    .stImage img,
+    .st-emotion-cache-1dp5yr8,
+    [data-testid="stImage"] {
+        display: none !important;
+        visibility: hidden !important;
+    }
+    
+    /* Remover o quadradinho vermelho com coroinha */
+    [data-testid="stDecoration"],
+    .stDecoration,
+    .st-emotion-cache-1dp5yr8::before,
+    .st-emotion-cache-1dp5yr8::after,
+    .st-emotion-cache-15ecur0::before,
+    .st-emotion-cache-15ecur0::after,
+    [data-testid="stStatusWidget"]::before,
+    [data-testid="stStatusWidget"]::after {
+        display: none !important;
+        content: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
+    
+    /* Especificamente para elementos do header com emoção */
+    .st-emotion-cache-1wrcr25,
+    .st-emotion-cache-1miom6v,
+    .st-emotion-cache-18ni7ap,
+    .st-emotion-cache-1dp5yr8,
+    .st-emotion-cache-1qg05tj,
+    .st-emotion-cache-15ecur0 {
+        display: none !important;
     }
     
     /* Garantir que o conteúdo comece no topo */
     .main > div {
         padding-top: 0 !important;
+        margin-top: 0 !important;
     }
     
-    /* Estilo para o menu lateral com botões */
-    .sidebar .stButton button {
-        text-align: left;
-        padding: 10px 15px;
-        margin: 2px 0;
+    /* Ajustar a sidebar para não ter espaço extra no topo */
+    section[data-testid="stSidebar"] {
+        top: 0 !important;
+        margin-top: 0 !important;
+    }
+    
+    /* Remover qualquer espaço residual */
+    .appview-container {
+        padding-top: 0 !important;
+    }
+    
+    .block-container {
+        padding-top: 0 !important;
+    }
+    
+    /* ===== ESTILO DO MENU SUPERIOR FIXO ===== */
+    .top-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background-color: #0f4c81;
+        padding: 10px 20px;
+        z-index: 1000;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .top-menu-title {
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+    
+    .top-menu-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .top-menu-button {
+        background-color: transparent;
+        color: white;
+        border: 1px solid white;
+        padding: 5px 15px;
         border-radius: 5px;
+        cursor: pointer;
         font-weight: 500;
         transition: all 0.3s;
     }
     
-    .sidebar .stButton button[kind="primary"] {
-        background-color: #007BFF !important;
-        color: white !important;
-        border-left: 4px solid #0056b3;
+    .top-menu-button:hover {
+        background-color: white;
+        color: #0f4c81;
     }
     
-    .sidebar .stButton button[kind="secondary"] {
-        background-color: transparent !important;
-        color: #333 !important;
-        border: 1px solid #ddd !important;
-    }
-    
-    .sidebar .stButton button[kind="secondary"]:hover {
-        background-color: #f0f2f6 !important;
-        border-left: 4px solid #007BFF !important;
-    }
-
-    /* Melhorar aparência dos botões */
-    .stButton button {
+    .top-menu-button.active {
+        background-color: white;
+        color: #0f4c81;
         font-weight: bold;
-        border-radius: 8px;
-        transition: background-color 0.3s ease;
     }
-
-    /* Ajustar tabelas */
-    .dataframe {
-        font-size: 15px;
-        border: 1px solid #ddd;
+    
+    /* Espaço para o conteúdo não ficar escondido atrás do menu fixo */
+    .content-with-top-menu {
+        margin-top: 80px;
+        padding: 20px;
+    }
+    
+    /* Esconder a sidebar original */
+    .css-1d391kg, [data-testid="stSidebar"] {
+        display: none !important;
+    }
+    
+    /* Ajustes para mobile */
+    @media (max-width: 768px) {
+        .top-menu {
+            flex-direction: column;
+            padding: 10px;
+        }
+        
+        .top-menu-buttons {
+            margin-top: 10px;
+            justify-content: center;
+        }
+        
+        .content-with-top-menu {
+            margin-top: 120px;
+        }
+    }
+    
+    /* Botão de atualização */
+    .refresh-button {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 8px 20px;
         border-radius: 5px;
-        overflow: hidden;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s;
     }
-
-    /* Remover barra de rolagem horizontal das tabelas */
-    .stDataFrame {
-        overflow-x: hidden !important;
+    
+    .refresh-button:hover {
+        background-color: #218838;
     }
-
+    
+    /* ===== SEU CSS EXISTENTE (mantido) ===== */
     /* Melhorar cards de produto */
     .produto-card {
         background-color: #ffffff;
@@ -127,32 +251,6 @@ st.markdown("""
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 
-    /* Garantir que todo texto seja visível */
-    .stTextInput input, .stTextArea textarea, .stNumberInput input {
-        color: #000000 !important;
-        background-color: #ffffff !important;
-        border: 1px solid #ddd !important;
-        border-radius: 5px;
-        padding: 8px;
-    }
-
-    /* Melhorar contraste dos labels */
-    .stTextInput label, .stTextArea label, .stNumberInput label, .stSelectbox label {
-        color: #ffffff !important;
-        font-weight: bold !important;
-    }
-
-    /* Ajustar cards do PDV */
-    .produto-card {
-        background-color: #ffffff;
-        padding: 20px;
-        border-radius: 12px;
-        margin: 10px 0;
-        border-left: 5px solid #007BFF;
-        color: #333333 !important;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
     .carrinho-item {
         background-color: #f1f8ff;
         padding: 12px;
@@ -160,17 +258,6 @@ st.markdown("""
         margin: 8px 0;
         color: #333333 !important;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    /* Garantir texto branco em botões primários */
-    .stButton button[type="primary"] {
-        color: white !important;
-        background-color: #28a745 !important;
-        border: none;
-    }
-
-    .stButton button[type="primary"]:hover {
-        background-color: #218838 !important;
     }
 
     /* Ajustar métricas */
@@ -185,85 +272,15 @@ st.markdown("""
         background-color: #f5f5f5 !important;
     }
 
-    /* Ajustar fundo dos inputs */
-    input, textarea, select {
+    /* Garantir que todo texto seja visível */
+    .stTextInput input, .stTextArea textarea, .stNumberInput input {
+        color: #000000 !important;
         background-color: #ffffff !important;
-        color: #333333 !important;
         border: 1px solid #ddd !important;
         border-radius: 5px;
         padding: 8px;
     }
-
-    /* Ajustar placeholders */
-    input::placeholder, textarea::placeholder {
-        color: #aaa !important;
-        opacity: 1;
-    }
-    
-    /* CORREÇÃO PARA PULL-TO-REFRESH - Versão simplificada */
-    body {
-        overscroll-behavior: auto !important;
-        overflow-y: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-    }
-    
-    .main {
-        overflow-y: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-    }
-    
-    .stApp {
-        overflow-y: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-    }
 </style>
-
-<script>
-    // FUNÇÃO PARA FECHAR A SIDEBAR NO CELULAR
-    function closeSidebarOnMobile() {
-        if (window.innerWidth < 768) {
-            // Tenta encontrar o botão de fechar a sidebar
-            const collapseBtn = document.querySelector('[data-testid="collapsed-control"]');
-            const sidebar = document.querySelector('[data-testid="stSidebar"]');
-            
-            // Se a sidebar estiver aberta e o botão existir, clica nele
-            if (sidebar && !sidebar.classList.contains('collapsed') && collapseBtn) {
-                setTimeout(() => {
-                    collapseBtn.click();
-                }, 100);
-            }
-        }
-    }
-    
-    // Fechar sidebar quando a página carregar (se necessário)
-    document.addEventListener('DOMContentLoaded', function() {
-        // Verificar se deve fechar a sidebar (via session state do Streamlit)
-        const shouldClose = document.body.getAttribute('data-close-sidebar');
-        if (shouldClose === 'true') {
-            closeSidebarOnMobile();
-        }
-    });
-    
-    // OBSERVAR MUDANÇAS NO CONTEÚDO (para capturar cliques no menu)
-    const observer = new MutationObserver(function(mutations) {
-        // Verificar se deve fechar a sidebar
-        const shouldClose = document.body.getAttribute('data-close-sidebar');
-        if (shouldClose === 'true') {
-            closeSidebarOnMobile();
-        }
-    });
-    
-    // Iniciar observação quando a página carregar
-    setTimeout(function() {
-        observer.observe(document.body, { childList: true, subtree: true, attributes: true });
-    }, 1000);
-    
-    // CORREÇÃO PARA F5 - Manter sessão
-    window.addEventListener('beforeunload', function() {
-        // Não fazer nada especial, apenas permitir que o Streamlit gerencie
-        // A sessão é mantida automaticamente pelo Streamlit
-    });
-</script>
 """, unsafe_allow_html=True)
 
 def gerar_codigo(nome_input):
@@ -357,70 +374,57 @@ if not st.session_state.autenticado:
 
 # ========== SISTEMA PRINCIPAL (APÓS LOGIN) ==========
 
-# Função para lidar com a navegação
+# Função para navegação
 def navigate_to(page):
     st.session_state.menu = page
-    # Marcar que a sidebar deve fechar no celular
-    st.session_state.sidebar_should_close = True
     st.rerun()
 
-# Menu lateral
-with st.sidebar:
-    st.image("https://img.icons8.com/color/96/000000/shop.png", width=80)
-    st.title(f"👤 {st.session_state.username}")
-    st.markdown("---")
-    
-    if st.button("🏠 Dashboard", use_container_width=True, 
-                type="primary" if st.session_state.menu == "🏠 Dashboard" else "secondary"):
-        navigate_to("🏠 Dashboard")
-    
-    if st.button("📦 Controle de Estoque", use_container_width=True,
-                type="primary" if st.session_state.menu == "📦 Controle de Estoque" else "secondary"):
-        navigate_to("📦 Controle de Estoque")
-    
-    if st.button("💵 PDV (Ponto de Venda)", use_container_width=True,
-                type="primary" if st.session_state.menu == "💵 PDV (Ponto de Venda)" else "secondary"):
-        navigate_to("💵 PDV (Ponto de Venda)")
-    
-    if st.button("📊 Relatórios", use_container_width=True,
-                type="primary" if st.session_state.menu == "📊 Relatórios" else "secondary"):
-        navigate_to("📊 Relatórios")
-    
-    if st.button("⚙️ Configurações", use_container_width=True,
-                type="primary" if st.session_state.menu == "⚙️ Configurações" else "secondary"):
-        navigate_to("⚙️ Configurações")
-    
-    st.markdown("---")
-    
-    if st.button("🚪 Sair", use_container_width=True, type="secondary"):
-        st.session_state.autenticado = False
-        st.session_state.username = ""
-        st.session_state.user_id = None
-        st.session_state.menu = "🏠 Dashboard"
-        st.session_state.carrinho = []
-        navigate_to("🏠 Dashboard")
+# ===== MENU SUPERIOR FIXO =====
+menu_html = f"""
+<div class="top-menu">
+    <div class="top-menu-title">
+        💰 Sistema de Controle - {st.session_state.username}
+    </div>
+    <div class="top-menu-buttons">
+        <button class="top-menu-button {'active' if st.session_state.menu == '🏠 Dashboard' else ''}" 
+                onclick="window.location.href='?page=dashboard'">🏠 Dashboard</button>
+        <button class="top-menu-button {'active' if st.session_state.menu == '📦 Controle de Estoque' else ''}" 
+                onclick="window.location.href='?page=estoque'">📦 Estoque</button>
+        <button class="top-menu-button {'active' if st.session_state.menu == '💵 PDV' else ''}" 
+                onclick="window.location.href='?page=pdv'">💵 PDV</button>
+        <button class="top-menu-button {'active' if st.session_state.menu == '📊 Relatórios' else ''}" 
+                onclick="window.location.href='?page=relatorios'">📊 Relatórios</button>
+        <button class="top-menu-button {'active' if st.session_state.menu == '⚙️ Configurações' else ''}" 
+                onclick="window.location.href='?page=config'">⚙️ Config.</button>
+        <button class="refresh-button" onclick="window.location.reload()">🔄 Atualizar</button>
+        <button class="top-menu-button" onclick="window.location.href='?logout=true'">🚪 Sair</button>
+    </div>
+</div>
+<div class="content-with-top-menu">
+"""
 
-# JavaScript para controlar o fechamento da sidebar
-if st.session_state.sidebar_should_close:
-    st.markdown("""
-    <script>
-        // Fechar a sidebar no celular
-        if (window.innerWidth < 768) {
-            setTimeout(function() {
-                const collapseBtn = document.querySelector('[data-testid="collapsed-control"]');
-                const sidebar = document.querySelector('[data-testid="stSidebar"]');
-                if (sidebar && !sidebar.classList.contains('collapsed') && collapseBtn) {
-                    collapseBtn.click();
-                }
-            }, 200);
-        }
-    </script>
-    """, unsafe_allow_html=True)
-    st.session_state.sidebar_should_close = False
+st.markdown(menu_html, unsafe_allow_html=True)
 
-# Título principal
-st.title(f"💰 Sistema de Controle - {st.session_state.username}")
-st.markdown("---")
+# Processar parâmetros da URL
+query_params = st.query_params
+if "page" in query_params:
+    page_map = {
+        "dashboard": "🏠 Dashboard",
+        "estoque": "📦 Controle de Estoque",
+        "pdv": "💵 PDV",
+        "relatorios": "📊 Relatórios",
+        "config": "⚙️ Configurações"
+    }
+    if query_params["page"][0] in page_map:
+        st.session_state.menu = page_map[query_params["page"][0]]
+
+if "logout" in query_params:
+    st.session_state.autenticado = False
+    st.session_state.username = ""
+    st.session_state.user_id = None
+    st.session_state.menu = "🏠 Dashboard"
+    st.session_state.carrinho = []
+    st.rerun()
 
 # ========== DASHBOARD ==========
 if st.session_state.menu == "🏠 Dashboard":
@@ -600,7 +604,7 @@ elif st.session_state.menu == "📦 Controle de Estoque":
             st.info("📭 Nenhum produto cadastrado para editar.")
 
 # ========== PDV ==========
-elif st.session_state.menu == "💵 PDV (Ponto de Venda)":
+elif st.session_state.menu == "💵 PDV":
     st.header("💵 Ponto de Venda")
     
     col1, col2 = st.columns([2, 1])
@@ -803,3 +807,6 @@ elif st.session_state.menu == "⚙️ Configurações":
 
         if st.form_submit_button("💾 Salvar Configurações", use_container_width=True, type="primary"):
             st.success("✅ Configurações salvas com sucesso!")
+
+# Fechar a div do conteúdo
+st.markdown("</div>", unsafe_allow_html=True)
