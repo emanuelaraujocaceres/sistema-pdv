@@ -177,10 +177,10 @@ st.markdown("""
         font-size: 0.95rem;
         cursor: pointer;
         transition: all 0.2s ease;
-        text-decoration: none;
-        display: inline-block;
         backdrop-filter: blur(5px);
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border: none;
+        font-family: inherit;
     }
     
     .botao-menu:hover {
@@ -193,12 +193,10 @@ st.markdown("""
         background: white;
         color: #667eea;
         font-weight: 700;
-        border-color: white;
     }
     
     .botao-menu.sair {
         background: rgba(220, 53, 69, 0.8);
-        border-color: rgba(255,255,255,0.3);
     }
     
     .botao-menu.sair:hover {
@@ -207,7 +205,6 @@ st.markdown("""
     
     .botao-menu.atualizar {
         background: linear-gradient(135deg, #28a745, #20c997);
-        border: none;
         font-weight: 700;
     }
     
@@ -231,31 +228,77 @@ st.markdown("""
         padding: 1rem 0;
     }
 </style>
+
+<script>
+    function navegar(pagina) {
+        // Criar um formulário para enviar a requisição
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.style.display = 'none';
+        
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'navegar';
+        input.value = pagina;
+        form.appendChild(input);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+    
+    function logout() {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.style.display = 'none';
+        
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'logout';
+        input.value = 'true';
+        form.appendChild(input);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+    
+    function atualizar() {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.style.display = 'none';
+        
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'atualizar';
+        input.value = 'true';
+        form.appendChild(input);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+</script>
 """, unsafe_allow_html=True)
 
-# ========== PROCESSAR PARÂMETROS DA URL ==========
+# ========== PROCESSAR REQUISIÇÕES POST ==========
 if st.session_state.autenticado:
-    query_params = st.query_params
-    
-    if "pagina" in query_params:
-        pagina = query_params["pagina"]
-        if pagina in ["Dashboard", "Estoque", "PDV", "Relatórios", "Configurações"]:
-            if st.session_state.pagina_atual != pagina:
+    if st.query_params:
+        if "navegar" in st.query_params:
+            pagina = st.query_params["navegar"]
+            if pagina in ["Dashboard", "Estoque", "PDV", "Relatórios", "Configurações"]:
                 st.session_state.pagina_atual = pagina
                 st.rerun()
-    
-    if "logout" in query_params:
-        st.session_state.autenticado = False
-        st.session_state.username = ""
-        st.session_state.user_id = None
-        st.session_state.pagina_atual = "Login"
-        st.session_state.carrinho = []
-        st.rerun()
-    
-    if "atualizar" in query_params:
-        st.rerun()
+        
+        if "logout" in st.query_params:
+            st.session_state.autenticado = False
+            st.session_state.username = ""
+            st.session_state.user_id = None
+            st.session_state.pagina_atual = "Login"
+            st.session_state.carrinho = []
+            st.rerun()
+        
+        if "atualizar" in st.query_params:
+            st.rerun()
 
-# ========== MENU SUPERIOR COM HTML PURO ==========
+# ========== MENU SUPERIOR COM JAVASCRIPT ==========
 if st.session_state.autenticado:
     usuario_logado = st.session_state.username
     pagina_atual = st.session_state.pagina_atual
@@ -267,18 +310,18 @@ if st.session_state.autenticado:
     relatorios_class = "botao-menu ativo" if pagina_atual == "Relatórios" else "botao-menu"
     config_class = "botao-menu ativo" if pagina_atual == "Configurações" else "botao-menu"
     
-    # HTML completo do menu
+    # HTML do menu com chamadas JavaScript
     menu_html = f"""
     <div class="menu-superior">
         <span class="usuario-info">👤 {usuario_logado}</span>
         <div class="menu-botoes">
-            <a href="?pagina=Dashboard" class="{dashboard_class}">🏠 Dashboard</a>
-            <a href="?pagina=Estoque" class="{estoque_class}">📦 Estoque</a>
-            <a href="?pagina=PDV" class="{pdv_class}">💵 PDV</a>
-            <a href="?pagina=Relatórios" class="{relatorios_class}">📊 Relatórios</a>
-            <a href="?pagina=Configurações" class="{config_class}">⚙️ Config</a>
-            <a href="?logout=true" class="botao-menu sair">🚪 Sair</a>
-            <a href="?atualizar=true" class="botao-menu atualizar">🔄</a>
+            <button onclick="navegar('Dashboard')" class="{dashboard_class}">🏠 Dashboard</button>
+            <button onclick="navegar('Estoque')" class="{estoque_class}">📦 Estoque</button>
+            <button onclick="navegar('PDV')" class="{pdv_class}">💵 PDV</button>
+            <button onclick="navegar('Relatórios')" class="{relatorios_class}">📊 Relatórios</button>
+            <button onclick="navegar('Configurações')" class="{config_class}">⚙️ Config</button>
+            <button onclick="logout()" class="botao-menu sair">🚪 Sair</button>
+            <button onclick="atualizar()" class="botao-menu atualizar">🔄</button>
         </div>
     </div>
     """
