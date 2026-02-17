@@ -5,118 +5,80 @@ from datetime import datetime
 import banco
 import auth
 
-# Criar tabela de usuários (se não existir) - mantido para compatibilidade
-auth.criar_tabela_usuarios()
-
-# Configuração da página - MUST BE THE FIRST STREAMLIT COMMAND
-st.set_page_config(
-    page_title="Sistema de Controle Profissional",
-    page_icon="💰",
-    layout="wide",
-    initial_sidebar_state="auto"
-)
-
-# ========== INICIALIZAÇÃO DA SESSÃO COM VERIFICAÇÃO ROBUSTA ==========
-# Verificar se usuário está autenticado na sessão
+# ========== INICIALIZAÇÃO DA SESSÃO ==========
 if 'autenticado' not in st.session_state:
     st.session_state.autenticado = False
 if 'username' not in st.session_state:
     st.session_state.username = ""
 if 'user_id' not in st.session_state:
     st.session_state.user_id = None
-if 'menu' not in st.session_state:
-    st.session_state.menu = "🏠 Dashboard"
+if 'pagina_atual' not in st.session_state:
+    st.session_state.pagina_atual = "Login"
 if 'codigo_auto' not in st.session_state:
     st.session_state.codigo_auto = ""
 if 'carrinho' not in st.session_state:
     st.session_state.carrinho = []
 if 'modo_login' not in st.session_state:
-    st.session_state.modo_login = "login"  # "login" ou "criar"
+    st.session_state.modo_login = "login"
 
-# CSS personalizado global
+# Configuração da página
+st.set_page_config(
+    page_title="Sistema de Controle Profissional",
+    page_icon="💰",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
+
+# ========== FUNÇÕES AUXILIARES ==========
+def redirecionar_pagina(pagina):
+    st.session_state.pagina_atual = pagina
+    st.rerun()
+
+def gerar_codigo(nome_input):
+    if nome_input:
+        import random
+        palavras = nome_input.split()
+        letras = []
+        for p in palavras[:3]:
+            if p:
+                letras.append(p[0].upper())
+        prefixo = ''.join(letras) if letras else "PROD"
+        numero = random.randint(100, 999)
+        return f"{prefixo}{numero}"
+    return ""
+
+def get_current_user_id():
+    if st.session_state.autenticado:
+        return auth.get_usuario_id(st.session_state.username)
+    return None
+
+def autenticar_usuario(usuario, senha):
+    return auth.verificar_login(usuario, senha)
+
+# ========== CSS PERSONALIZADO ==========
 st.markdown("""
 <style>
     /* ===== REMOVER TODOS OS ELEMENTOS DO STREAMLIT ===== */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
     
-    /* Remover o header inteiro (barra superior) */
     header[data-testid="stHeader"] {
         display: none !important;
         visibility: hidden !important;
         height: 0 !important;
-        width: 0 !important;
-        position: absolute !important;
-        top: -9999px !important;
-        left: -9999px !important;
     }
     
-    /* Remover o footer "Made with Streamlit" */
-    footer {
-        display: none !important;
-        visibility: hidden !important;
-    }
-    
-    /* Remover todos os botões do header */
     .stApp header .stActionButton,
     .stApp header [data-testid="stActionButton"],
     .stApp header [aria-label="Share"],
     .stApp header [aria-label="Star"],
     .stApp header [aria-label="Edit app"],
     .stApp header [aria-label="Deploy"],
-    .stApp header [aria-label="Manage app"],
     button[kind="header"],
     button[kind="headerNoPadding"],
-    button[title="Share"],
-    button[title="Star"],
-    button[title="Edit app"],
-    button[title="Manage app"],
     [data-testid="stStatusWidget"],
-    [data-testid="stActionButton"],
-    [data-testid="baseButton-header"],
-    [data-testid="baseButton-headerNoPadding"],
-    .st-emotion-cache-1wrcr25,
-    .st-emotion-cache-1miom6v,
-    .st-emotion-cache-1miom6v a,
-    .st-emotion-cache-18ni7ap,
-    .st-emotion-cache-1dp5yr8,
-    .st-emotion-cache-1qg05tj,
-    .st-emotion-cache-15ecur0 {
-        display: none !important;
-        opacity: 0 !important;
-        visibility: hidden !important;
-        width: 0 !important;
-        height: 0 !important;
-        pointer-events: none !important;
-    }
-    
-    /* Remover a imagem de perfil/foto do usuário */
-    [data-testid="stSidebarUserContent"] img,
-    .st-emotion-cache-1dp5yr8 img,
-    img[alt="profile picture"],
-    img[src*="avatars"],
-    img[src*="githubusercontent"],
-    .stImage img,
-    .st-emotion-cache-1dp5yr8,
-    [data-testid="stImage"] {
-        display: none !important;
-        visibility: hidden !important;
-    }
-    
-    /* Remover o quadradinho vermelho com coroinha */
     [data-testid="stDecoration"],
-    .stDecoration,
-    .st-emotion-cache-1dp5yr8::before,
-    .st-emotion-cache-1dp5yr8::after,
-    .st-emotion-cache-15ecur0::before,
-    .st-emotion-cache-15ecur0::after,
-    [data-testid="stStatusWidget"]::before,
-    [data-testid="stStatusWidget"]::after {
-        display: none !important;
-        content: none !important;
-        opacity: 0 !important;
-        visibility: hidden !important;
-    }
-    
-    /* Especificamente para elementos do header com emoção */
     .st-emotion-cache-1wrcr25,
     .st-emotion-cache-1miom6v,
     .st-emotion-cache-18ni7ap,
@@ -126,129 +88,137 @@ st.markdown("""
         display: none !important;
     }
     
-    /* Garantir que o conteúdo comece no topo */
-    .main > div {
-        padding-top: 0 !important;
-        margin-top: 0 !important;
-    }
-    
-    /* Ajustar a sidebar para não ter espaço extra no topo */
-    section[data-testid="stSidebar"] {
-        top: 0 !important;
-        margin-top: 0 !important;
-    }
-    
-    /* Remover qualquer espaço residual */
-    .appview-container {
-        padding-top: 0 !important;
-    }
-    
-    .block-container {
-        padding-top: 0 !important;
-    }
-    
-    /* ===== ESTILO DO MENU SUPERIOR FIXO ===== */
-    .top-menu {
+    /* ===== MENU SUPERIOR FIXO ===== */
+    .menu-superior {
         position: fixed;
         top: 0;
         left: 0;
         right: 0;
-        background-color: #0f4c81;
-        padding: 10px 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 15px 30px;
         z-index: 1000;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    
-    .top-menu-title {
-        color: white;
-        font-weight: bold;
-        font-size: 1.2rem;
-    }
-    
-    .top-menu-buttons {
-        display: flex;
-        gap: 10px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
         flex-wrap: wrap;
     }
     
-    .top-menu-button {
-        background-color: transparent;
+    .menu-links {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    
+    .menu-link {
         color: white;
-        border: 1px solid white;
-        padding: 5px 15px;
-        border-radius: 5px;
-        cursor: pointer;
+        text-decoration: none;
+        padding: 8px 16px;
+        border-radius: 8px;
         font-weight: 500;
         transition: all 0.3s;
-    }
-    
-    .top-menu-button:hover {
-        background-color: white;
-        color: #0f4c81;
-    }
-    
-    .top-menu-button.active {
-        background-color: white;
-        color: #0f4c81;
-        font-weight: bold;
-    }
-    
-    /* Espaço para o conteúdo não ficar escondido atrás do menu fixo */
-    .content-with-top-menu {
-        margin-top: 80px;
-        padding: 20px;
-    }
-    
-    /* Esconder a sidebar original */
-    .css-1d391kg, [data-testid="stSidebar"] {
-        display: none !important;
-    }
-    
-    /* Ajustes para mobile */
-    @media (max-width: 768px) {
-        .top-menu {
-            flex-direction: column;
-            padding: 10px;
-        }
-        
-        .top-menu-buttons {
-            margin-top: 10px;
-            justify-content: center;
-        }
-        
-        .content-with-top-menu {
-            margin-top: 120px;
-        }
-    }
-    
-    /* Botão de atualização */
-    .refresh-button {
-        background-color: #28a745;
-        color: white;
-        border: none;
-        padding: 8px 20px;
-        border-radius: 5px;
-        font-weight: bold;
+        background-color: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
         cursor: pointer;
-        transition: background-color 0.3s;
     }
     
-    .refresh-button:hover {
-        background-color: #218838;
+    .menu-link:hover {
+        background-color: rgba(255,255,255,0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
     
-    /* ===== SEU CSS EXISTENTE (mantido) ===== */
-    /* Melhorar cards de produto */
+    .menu-link.ativo {
+        background-color: white;
+        color: #667eea;
+        border-color: white;
+        font-weight: bold;
+    }
+    
+    .botao-atualizar {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        padding: 8px 24px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: bold;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    }
+    
+    .botao-atualizar:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
+        background: linear-gradient(135deg, #20c997, #28a745);
+    }
+    
+    .usuario-info {
+        color: white;
+        font-weight: 500;
+        margin-right: 15px;
+        padding: 8px 16px;
+        background: rgba(255,255,255,0.15);
+        border-radius: 8px;
+    }
+    
+    .conteudo {
+        margin-top: 90px;
+        padding: 30px;
+        background-color: #f8f9fa;
+        min-height: calc(100vh - 90px);
+    }
+    
+    /* ===== RESPONSIVIDADE ===== */
+    @media (max-width: 768px) {
+        .menu-superior {
+            flex-direction: column;
+            padding: 15px;
+            gap: 15px;
+        }
+        
+        .menu-links {
+            justify-content: center;
+            width: 100%;
+        }
+        
+        .conteudo {
+            margin-top: 150px;
+            padding: 15px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .menu-links {
+            flex-direction: column;
+            width: 100%;
+        }
+        
+        .menu-link {
+            width: 100%;
+            text-align: center;
+        }
+        
+        .botao-atualizar {
+            width: 100%;
+            text-align: center;
+        }
+        
+        .conteudo {
+            margin-top: 280px;
+        }
+    }
+    
+    /* ===== ESTILOS EXISTENTES ===== */
     .produto-card {
         background-color: #ffffff;
         padding: 20px;
         border-radius: 12px;
         margin: 10px 0;
-        border-left: 5px solid #007BFF;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-left: 5px solid #667eea;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
 
     .carrinho-item {
@@ -257,100 +227,87 @@ st.markdown("""
         border-radius: 8px;
         margin: 8px 0;
         color: #333333 !important;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
-    /* Ajustar métricas */
     [data-testid="stMetricValue"] {
-        color: #007BFF !important;
+        color: #667eea !important;
         font-size: 2.5rem !important;
         font-weight: bold;
     }
 
-    /* Ajustar fundo geral para mais claro */
     .main {
-        background-color: #f5f5f5 !important;
+        background-color: #f8f9fa !important;
     }
 
-    /* Garantir que todo texto seja visível */
     .stTextInput input, .stTextArea textarea, .stNumberInput input {
         color: #000000 !important;
         background-color: #ffffff !important;
         border: 1px solid #ddd !important;
-        border-radius: 5px;
-        padding: 8px;
+        border-radius: 8px;
+        padding: 10px;
+    }
+    
+    .stButton button {
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    
+    .stButton button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 </style>
 """, unsafe_allow_html=True)
-
-def gerar_codigo(nome_input):
-    if nome_input:
-        import random
-        import re
-    
-        palavras = nome_input.split()
-        letras = []
-        for p in palavras[:3]:
-            if p:
-                letras.append(p[0].upper())
-        
-        prefixo = ''.join(letras) if letras else "PROD"
-        numero = random.randint(100, 999)
-        return f"{prefixo}{numero}"
-    return ""
-
-# Função auxiliar para pegar o ID do usuário atual
-def get_current_user_id():
-    """Retorna o ID do usuário logado"""
-    if st.session_state.autenticado:
-        return auth.get_usuario_id(st.session_state.username)
-    return None
 
 # ========== SISTEMA DE LOGIN ==========
 if not st.session_state.autenticado:
     col1, col2, col3 = st.columns([1, 2, 1])
     
     with col2:
-        st.title("💰 Sistema de Controle")
-        st.markdown("---")
+        st.markdown("""
+        <div style="text-align: center; padding: 40px 0;">
+            <h1 style="color: #667eea;">💰 Sistema de Controle</h1>
+            <p style="color: #666; font-size: 1.1rem;">Profissional</p>
+        </div>
+        """, unsafe_allow_html=True)
         
         if st.session_state.modo_login == "login":
             st.subheader("🔐 Login no Sistema")
-
+            
             with st.form("login_form"):
                 usuario = st.text_input("Usuário", key="login_usuario")
                 senha = st.text_input("Senha", type="password", key="login_senha")
                 login = st.form_submit_button("Entrar", use_container_width=True, type="primary")
-
+                
                 if login:
-                    if auth.verificar_login(usuario, senha):
+                    if autenticar_usuario(usuario, senha):
                         st.session_state.autenticado = True
                         st.session_state.username = usuario
                         st.session_state.user_id = auth.get_usuario_id(usuario)
-                        st.session_state.menu = "🏠 Dashboard"
+                        st.session_state.pagina_atual = "Dashboard"
                         st.rerun()
                     else:
                         st.error("❌ Usuário ou senha incorretos. Tente novamente.")
-
+            
             if st.button("📝 Criar Conta", use_container_width=True):
                 st.session_state.modo_login = "criar"
                 st.rerun()
-
-        elif st.session_state.modo_login == "criar":
+        
+        else:
             st.subheader("📝 Criar Nova Conta")
-
+            
             with st.form("criar_conta_form"):
-                novo_usuario = st.text_input("Novo Usuário *", key="novo_usuario")
-                nova_senha = st.text_input("Nova Senha *", type="password", key="nova_senha")
-                conf_senha = st.text_input("Confirmar Senha *", type="password", key="conf_senha")
+                novo_usuario = st.text_input("Novo Usuário *")
+                nova_senha = st.text_input("Nova Senha *", type="password")
+                conf_senha = st.text_input("Confirmar Senha *", type="password")
                 nome_completo = st.text_input("Nome Completo (opcional)")
                 email = st.text_input("E-mail (opcional)")
                 
                 st.caption("* Campos obrigatórios")
                 
-                criar_conta = st.form_submit_button("✅ Criar Conta", use_container_width=True, type="primary")
-
-                if criar_conta:
+                if st.form_submit_button("✅ Criar Conta", use_container_width=True, type="primary"):
                     if not novo_usuario or not nova_senha:
                         st.error("❌ Usuário e senha são obrigatórios!")
                     elif nova_senha != conf_senha:
@@ -365,69 +322,58 @@ if not st.session_state.autenticado:
                             st.rerun()
                         else:
                             st.error(f"❌ {mensagem}")
-
+            
             if st.button("🔙 Voltar para Login", use_container_width=True):
                 st.session_state.modo_login = "login"
                 st.rerun()
     
     st.stop()
 
-# ========== SISTEMA PRINCIPAL (APÓS LOGIN) ==========
-
-# Função para navegação
-def navigate_to(page):
-    st.session_state.menu = page
-    st.rerun()
-
-# ===== MENU SUPERIOR FIXO =====
+# ========== MENU SUPERIOR FIXO ==========
 menu_html = f"""
-<div class="top-menu">
-    <div class="top-menu-title">
-        💰 Sistema de Controle - {st.session_state.username}
+<div class="menu-superior">
+    <div class="menu-links">
+        <span class="usuario-info">👤 {st.session_state.username}</span>
+        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Dashboard' else ''}" 
+                onclick="window.location.href='?pagina=Dashboard'">🏠 Dashboard</button>
+        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Estoque' else ''}" 
+                onclick="window.location.href='?pagina=Estoque'">📦 Estoque</button>
+        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'PDV' else ''}" 
+                onclick="window.location.href='?pagina=PDV'">💵 PDV</button>
+        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Relatórios' else ''}" 
+                onclick="window.location.href='?pagina=Relatórios'">📊 Relatórios</button>
+        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Configurações' else ''}" 
+                onclick="window.location.href='?pagina=Configurações'">⚙️ Config.</button>
+        <button class="menu-link" onclick="window.location.href='?logout=true'">🚪 Sair</button>
     </div>
-    <div class="top-menu-buttons">
-        <button class="top-menu-button {'active' if st.session_state.menu == '🏠 Dashboard' else ''}" 
-                onclick="window.location.href='?page=dashboard'">🏠 Dashboard</button>
-        <button class="top-menu-button {'active' if st.session_state.menu == '📦 Controle de Estoque' else ''}" 
-                onclick="window.location.href='?page=estoque'">📦 Estoque</button>
-        <button class="top-menu-button {'active' if st.session_state.menu == '💵 PDV' else ''}" 
-                onclick="window.location.href='?page=pdv'">💵 PDV</button>
-        <button class="top-menu-button {'active' if st.session_state.menu == '📊 Relatórios' else ''}" 
-                onclick="window.location.href='?page=relatorios'">📊 Relatórios</button>
-        <button class="top-menu-button {'active' if st.session_state.menu == '⚙️ Configurações' else ''}" 
-                onclick="window.location.href='?page=config'">⚙️ Config.</button>
-        <button class="refresh-button" onclick="window.location.reload()">🔄 Atualizar</button>
-        <button class="top-menu-button" onclick="window.location.href='?logout=true'">🚪 Sair</button>
-    </div>
+    <button class="botao-atualizar" onclick="location.reload()">🔄 Atualizar</button>
 </div>
-<div class="content-with-top-menu">
+<div class="conteudo">
 """
 
 st.markdown(menu_html, unsafe_allow_html=True)
 
-# Processar parâmetros da URL
+# ========== PROCESSAR PARÂMETROS DA URL ==========
 query_params = st.query_params
-if "page" in query_params:
-    page_map = {
-        "dashboard": "🏠 Dashboard",
-        "estoque": "📦 Controle de Estoque",
-        "pdv": "💵 PDV",
-        "relatorios": "📊 Relatórios",
-        "config": "⚙️ Configurações"
-    }
-    if query_params["page"][0] in page_map:
-        st.session_state.menu = page_map[query_params["page"][0]]
+if "pagina" in query_params:
+    pagina = query_params["pagina"][0]
+    if pagina in ["Dashboard", "Estoque", "PDV", "Relatórios", "Configurações"]:
+        st.session_state.pagina_atual = pagina
+        st.rerun()
 
 if "logout" in query_params:
     st.session_state.autenticado = False
     st.session_state.username = ""
     st.session_state.user_id = None
-    st.session_state.menu = "🏠 Dashboard"
+    st.session_state.pagina_atual = "Login"
     st.session_state.carrinho = []
     st.rerun()
 
-# ========== DASHBOARD ==========
-if st.session_state.menu == "🏠 Dashboard":
+# ========== CONTEÚDO DAS PÁGINAS ==========
+pagina_atual = st.session_state.pagina_atual
+
+# ===== DASHBOARD =====
+if pagina_atual == "Dashboard":
     st.header("📊 Dashboard")
     
     produtos = banco.listar_produtos(st.session_state.user_id)
@@ -437,21 +383,22 @@ if st.session_state.menu == "🏠 Dashboard":
         with col1:
             st.metric("Total de Produtos", len(produtos))
         with col2:
-            total_estoque = produtos['quantidade'].sum()
+            total_estoque = int(produtos['quantidade'].sum())
             st.metric("Itens em Estoque", total_estoque)
         with col3:
             valor_total = (produtos['quantidade'] * produtos['preco']).sum()
             st.metric("Valor em Estoque", f"R$ {valor_total:.2f}")
         
-        if not produtos.empty and 'categoria' in produtos.columns:
+        if 'categoria' in produtos.columns:
             fig = px.pie(produtos, names='categoria', values='quantidade',
-                        title="Distribuição do Estoque por Categoria")
+                        title="Distribuição do Estoque por Categoria",
+                        color_discrete_sequence=px.colors.qualitative.Set3)
             st.plotly_chart(fig, use_container_width=True)
     else:
-        st.info("📭 Nenhum produto cadastrado ainda. Acesse 'Controle de Estoque' para começar!")
+        st.info("📭 Nenhum produto cadastrado ainda. Acesse 'Estoque' para começar!")
 
-# ========== CONTROLE DE ESTOQUE ==========
-elif st.session_state.menu == "📦 Controle de Estoque":
+# ===== ESTOQUE =====
+elif pagina_atual == "Estoque":
     st.header("📦 Controle de Estoque")
     
     aba1, aba2, aba3 = st.tabs(["📝 Cadastrar", "📋 Listar", "✏️ Editar"])
@@ -477,9 +424,7 @@ elif st.session_state.menu == "📦 Controle de Estoque":
             
             st.markdown("* Campos obrigatórios")
             
-            submitted = st.form_submit_button("✅ Cadastrar Produto", use_container_width=True)
-            
-            if submitted:
+            if st.form_submit_button("✅ Cadastrar Produto", use_container_width=True):
                 if not nome:
                     st.error("❌ Nome do produto é obrigatório!")
                 elif not codigo:
@@ -527,15 +472,17 @@ elif st.session_state.menu == "📦 Controle de Estoque":
             
             df_exibicao = produtos[list(colunas_exibicao.keys())].copy()
             df_exibicao = df_exibicao.rename(columns=colunas_exibicao)
-            df_exibicao['Preço (R$)'] = df_exibicao['Preço (R$)'].apply(lambda x: f"{x:.2f}")
+            df_exibicao['Preço (R$)'] = df_exibicao['Preço (R$)'].apply(lambda x: f"R$ {x:.2f}")
             
             st.dataframe(df_exibicao, use_container_width=True, hide_index=True)
             
-            if not produtos.empty and 'categoria' in produtos.columns:
+            if 'categoria' in produtos.columns:
                 st.subheader("📊 Estoque por Categoria")
                 estoque_categoria = produtos.groupby('categoria')['quantidade'].sum().reset_index()
                 fig = px.bar(estoque_categoria, x='categoria', y='quantidade', 
-                        title="Quantidade em Estoque por Categoria", color='categoria')
+                           title="Quantidade em Estoque por Categoria", 
+                           color='categoria',
+                           color_discrete_sequence=px.colors.qualitative.Set3)
                 st.plotly_chart(fig, use_container_width=True)
         else:
             st.info("📭 Nenhum produto cadastrado ainda.")
@@ -603,8 +550,8 @@ elif st.session_state.menu == "📦 Controle de Estoque":
         else:
             st.info("📭 Nenhum produto cadastrado para editar.")
 
-# ========== PDV ==========
-elif st.session_state.menu == "💵 PDV":
+# ===== PDV =====
+elif pagina_atual == "PDV":
     st.header("💵 Ponto de Venda")
     
     col1, col2 = st.columns([2, 1])
@@ -657,9 +604,6 @@ elif st.session_state.menu == "💵 PDV":
     with col2:
         st.subheader("🛒 Carrinho de Compras")
         
-        if 'carrinho' not in st.session_state:
-            st.session_state.carrinho = []
-        
         if st.session_state.carrinho:
             total = 0
             for i, item in enumerate(st.session_state.carrinho):
@@ -688,8 +632,8 @@ elif st.session_state.menu == "💵 PDV":
                     st.divider()
             
             st.markdown(f"""
-            <div style="background-color: #0f4c81; color: white; padding: 15px; border-radius: 5px; text-align: center; margin: 10px 0;">
-                <h2>TOTAL: R$ {total:.2f}</h2>
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; text-align: center; margin: 20px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                <h2 style="margin:0;">TOTAL: R$ {total:.2f}</h2>
             </div>
             """, unsafe_allow_html=True)
             
@@ -712,11 +656,11 @@ elif st.session_state.menu == "💵 PDV":
         else:
             st.info("🛒 Carrinho vazio")
 
-# ========== RELATÓRIOS ==========
-elif st.session_state.menu == "📊 Relatórios":
+# ===== RELATÓRIOS =====
+elif pagina_atual == "Relatórios":
     st.header("📊 Relatórios")
 
-    tipo_relatorio = st.selectbox("Tipo de Relatório", ["Vendas", "Produtos", "Clientes"])
+    tipo_relatorio = st.selectbox("Tipo de Relatório", ["Vendas", "Produtos"])
 
     if tipo_relatorio == "Vendas":
         st.subheader("📈 Vendas")
@@ -756,18 +700,18 @@ elif st.session_state.menu == "📊 Relatórios":
                 vendas['data'] = pd.to_datetime(vendas['data_hora']).dt.date
                 vendas_por_dia = vendas.groupby('data')['total'].sum().reset_index()
                 
-                fig = px.line(vendas_por_dia, x='data', y='total', title="Vendas por Dia", markers=True)
+                fig = px.line(vendas_por_dia, x='data', y='total', title="Vendas por Dia", 
+                             markers=True, color_discrete_sequence=['#667eea'])
                 fig.update_layout(yaxis_title="Valor (R$)")
                 st.plotly_chart(fig, use_container_width=True)
                 
                 if 'forma_pagamento' in vendas.columns:
-                    fig_pag = px.pie(vendas, names='forma_pagamento', values='total', title="Vendas por Forma de Pagamento")
+                    fig_pag = px.pie(vendas, names='forma_pagamento', values='total', 
+                                   title="Vendas por Forma de Pagamento",
+                                   color_discrete_sequence=px.colors.qualitative.Set3)
                     st.plotly_chart(fig_pag, use_container_width=True)
-                
-                if st.button("📥 Exportar para Excel", use_container_width=True):
-                    st.info("Funcionalidade de exportação será implementada em breve!")
             else:
-                st.info(f"Nenhuma venda encontrada no período de {data_inicio.strftime('%d/%m/%Y')} a {data_fim.strftime('%d/%m/%Y')}")
+                st.info(f"Nenhuma venda encontrada no período selecionado.")
 
     elif tipo_relatorio == "Produtos":
         st.subheader("📦 Produtos")
@@ -786,24 +730,25 @@ elif st.session_state.menu == "📊 Relatórios":
             
             st.dataframe(df_estoque, use_container_width=True, hide_index=True)
             
-            fig = px.bar(produtos, x='nome', y='quantidade', title="Quantidade em Estoque", color='nome')
+            fig = px.bar(produtos, x='nome', y='quantidade', title="Quantidade em Estoque", 
+                        color='nome', color_discrete_sequence=px.colors.qualitative.Set3)
             st.plotly_chart(fig, use_container_width=True)
         else:
             st.info("Nenhum produto cadastrado.")
 
-    elif tipo_relatorio == "Clientes":
-        st.subheader("👥 Clientes")
-        st.info("Nenhum cliente cadastrado.")
-
-# ========== CONFIGURAÇÕES ==========
-elif st.session_state.menu == "⚙️ Configurações":
+# ===== CONFIGURAÇÕES =====
+elif pagina_atual == "Configurações":
     st.header("⚙️ Configurações")
 
     with st.form("config_empresa"):
-        nome_empresa = st.text_input("Nome da Empresa")
-        cnpj = st.text_input("CNPJ")
-        endereco = st.text_input("Endereço")
-        telefone = st.text_input("Telefone")
+        st.subheader("Dados da Empresa")
+        col1, col2 = st.columns(2)
+        with col1:
+            nome_empresa = st.text_input("Nome da Empresa")
+            cnpj = st.text_input("CNPJ")
+        with col2:
+            endereco = st.text_input("Endereço")
+            telefone = st.text_input("Telefone")
 
         if st.form_submit_button("💾 Salvar Configurações", use_container_width=True, type="primary"):
             st.success("✅ Configurações salvas com sucesso!")
