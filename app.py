@@ -333,10 +333,9 @@ if not st.session_state.autenticado:
 st.markdown("""
 <div class="menu-superior">
     <div class="menu-links">
-        <span class="usuario-info">👤 {st.session_state.username}</span>
+        <span class="usuario-info">👤 {st.session_state.username if st.session_state.get('autenticado', False) else 'Usuário não logado'}</span>
     </div>
 </div>
-<div class="conteudo">
 """, unsafe_allow_html=True)
 
 # Corrigir exibição do nome do usuário logado e remover espaço em branco
@@ -349,7 +348,6 @@ st.markdown(f"""
         <span class="usuario-info">👤 {usuario_logado}</span>
     </div>
 </div>
-<div class="conteudo">
 """, unsafe_allow_html=True)
 
 # Ajustar estilos para remover os quadrados brancos acima dos botões do menu
