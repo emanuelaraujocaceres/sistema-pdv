@@ -149,18 +149,14 @@ st.markdown("""
         max-width: 100% !important;
     }
     
-    /* ===== MENU SUPERIOR INTEGRADO ===== */
-    .menu-integrado {
+    /* ===== BARRA ROXA SUPERIOR ===== */
+    .barra-superior {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 0.5rem 1rem;
-        border-radius: 0 0 10px 10px;
-        margin-bottom: 1rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        padding: 0.75rem 1.5rem;
+        border-radius: 0 0 15px 15px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         width: 100%;
-    }
-    
-    /* Container para alinhar o nome do usuário e botões */
-    .menu-container {
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -168,98 +164,92 @@ st.markdown("""
         gap: 1rem;
     }
     
-    /* Tag do usuário */
-    .usuario-tag {
+    /* Nome do usuário */
+    .usuario-nome {
         background: rgba(255,255,255,0.15);
         color: white;
-        padding: 0.35rem 1.2rem;
-        border-radius: 30px;
+        padding: 0.4rem 1.5rem;
+        border-radius: 40px;
         font-weight: 600;
-        font-size: 0.95rem;
+        font-size: 1rem;
         border: 1px solid rgba(255,255,255,0.3);
         white-space: nowrap;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        letter-spacing: 0.3px;
+        backdrop-filter: blur(5px);
     }
     
     /* Container dos botões */
-    .botoes-wrapper {
+    .botoes-menu {
         display: flex;
         align-items: center;
         gap: 0.5rem;
         flex-wrap: wrap;
     }
     
-    /* Estilo para os botões do Streamlit no menu */
-    .botoes-wrapper .stButton button {
-        background: rgba(255,255,255,0.15) !important;
-        color: white !important;
-        border: 1px solid rgba(255,255,255,0.3) !important;
-        padding: 0.35rem 1.2rem !important;
-        border-radius: 30px !important;
-        font-weight: 600 !important;
-        font-size: 0.9rem !important;
-        transition: all 0.2s ease !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
-        min-width: unset !important;
-        height: auto !important;
-        line-height: 1.4 !important;
-        margin: 0 !important;
+    /* Estilo base para todos os botões */
+    .botao-menu {
+        background: rgba(255,255,255,0.15);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.3);
+        padding: 0.4rem 1.2rem;
+        border-radius: 40px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        backdrop-filter: blur(5px);
         letter-spacing: 0.3px;
+        text-decoration: none;
+        display: inline-block;
     }
     
-    .botoes-wrapper .stButton button:hover {
-        background: rgba(255,255,255,0.25) !important;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
+    .botao-menu:hover {
+        background: rgba(255,255,255,0.25);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
     
-    /* Botão ativo (página atual) */
-    .botoes-wrapper .stButton button:active,
-    .botoes-wrapper .stButton button:focus {
-        background: white !important;
-        color: #667eea !important;
-        font-weight: 700 !important;
-        border-color: white !important;
+    .botao-menu.ativo {
+        background: white;
+        color: #667eea;
+        font-weight: 700;
+        border-color: white;
     }
     
-    /* Botão de sair */
-    .botoes-wrapper .stButton.sair button {
-        background: rgba(220, 53, 69, 0.8) !important;
-        border-color: rgba(255,255,255,0.3) !important;
+    .botao-menu.sair {
+        background: rgba(220, 53, 69, 0.8);
+        border-color: rgba(255,255,255,0.3);
     }
     
-    .botoes-wrapper .stButton.sair button:hover {
-        background: rgba(220, 53, 69, 1) !important;
+    .botao-menu.sair:hover {
+        background: rgba(220, 53, 69, 1);
     }
     
-    /* Botão de atualizar */
-    .botoes-wrapper .stButton.atualizar button {
-        background: linear-gradient(135deg, #28a745, #20c997) !important;
-        border: none !important;
-        font-weight: 700 !important;
+    .botao-menu.atualizar {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border: none;
+        font-weight: 700;
     }
     
-    .botoes-wrapper .stButton.atualizar button:hover {
-        background: linear-gradient(135deg, #20c997, #28a745) !important;
+    .botao-menu.atualizar:hover {
+        background: linear-gradient(135deg, #20c997, #28a745);
     }
     
     /* Responsividade */
     @media (max-width: 768px) {
-        .menu-container {
+        .barra-superior {
             flex-direction: column;
-            align-items: flex-start;
-            gap: 0.8rem;
+            align-items: stretch;
         }
         
-        .botoes-wrapper {
-            width: 100%;
+        .botoes-menu {
             justify-content: center;
         }
         
-        .botoes-wrapper .stButton button {
-            padding: 0.3rem 1rem !important;
-            font-size: 0.85rem !important;
+        .botao-menu {
+            text-align: center;
+            flex: 1;
         }
     }
     
@@ -270,89 +260,121 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ========== MENU SUPERIOR COM BOTÕES DO STREAMLIT ==========
+# ========== MENU SUPERIOR INTEGRADO ==========
 if st.session_state.autenticado:
     usuario_logado = st.session_state.username
     pagina_atual = st.session_state.pagina_atual
 
-    # Criar o menu usando colunas do Streamlit dentro de um container estilizado
-    with st.container():
-        st.markdown('<div class="menu-integrado">', unsafe_allow_html=True)
-        st.markdown('<div class="menu-container">', unsafe_allow_html=True)
-        
-        # Coluna do nome do usuário (HTML puro)
-        col_usuario, col_botoes = st.columns([1, 4])
-        
-        with col_usuario:
-            st.markdown(f'<span class="usuario-tag">👤 {usuario_logado}</span>', unsafe_allow_html=True)
-        
-        with col_botoes:
-            st.markdown('<div class="botoes-wrapper">', unsafe_allow_html=True)
-            
-            # Criando colunas para os botões
-            btn_cols = st.columns(7)
-            
-            with btn_cols[0]:
-                if st.button("🏠 Dashboard", key="menu_dashboard", use_container_width=True):
-                    st.session_state.pagina_atual = "Dashboard"
-                    st.rerun()
-            
-            with btn_cols[1]:
-                if st.button("📦 Estoque", key="menu_estoque", use_container_width=True):
-                    st.session_state.pagina_atual = "Estoque"
-                    st.rerun()
-            
-            with btn_cols[2]:
-                if st.button("💵 PDV", key="menu_pdv", use_container_width=True):
-                    st.session_state.pagina_atual = "PDV"
-                    st.rerun()
-            
-            with btn_cols[3]:
-                if st.button("📊 Relatórios", key="menu_relatorios", use_container_width=True):
-                    st.session_state.pagina_atual = "Relatórios"
-                    st.rerun()
-            
-            with btn_cols[4]:
-                if st.button("⚙️ Config", key="menu_config", use_container_width=True):
-                    st.session_state.pagina_atual = "Configurações"
-                    st.rerun()
-            
-            with btn_cols[5]:
-                st.markdown('<div class="sair">', unsafe_allow_html=True)
-                if st.button("🚪 Sair", key="menu_sair", use_container_width=True):
-                    st.session_state.autenticado = False
-                    st.session_state.username = ""
-                    st.session_state.user_id = None
-                    st.session_state.pagina_atual = "Login"
-                    st.session_state.carrinho = []
-                    st.rerun()
-                st.markdown('</div>', unsafe_allow_html=True)
-            
-            with btn_cols[6]:
-                st.markdown('<div class="atualizar">', unsafe_allow_html=True)
-                if st.button("🔄", key="menu_atualizar", use_container_width=True):
-                    st.rerun()
-                st.markdown('</div>', unsafe_allow_html=True)
-            
-            st.markdown('</div>', unsafe_allow_html=True)
-        
-        st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+    # Criar a barra superior com HTML puro
+    st.markdown(f"""
+    <div class="barra-superior">
+        <span class="usuario-nome">👤 {usuario_logado}</span>
+        <div class="botoes-menu">
+    """, unsafe_allow_html=True)
+    
+    # Criar colunas para os botões dentro do HTML
+    col1, col2, col3, col4, col5, col6, col7 = st.columns(7)
+    
+    with col1:
+        if st.button("🏠 Dashboard", key="menu_dashboard", use_container_width=True):
+            st.session_state.pagina_atual = "Dashboard"
+            st.rerun()
+    
+    with col2:
+        if st.button("📦 Estoque", key="menu_estoque", use_container_width=True):
+            st.session_state.pagina_atual = "Estoque"
+            st.rerun()
+    
+    with col3:
+        if st.button("💵 PDV", key="menu_pdv", use_container_width=True):
+            st.session_state.pagina_atual = "PDV"
+            st.rerun()
+    
+    with col4:
+        if st.button("📊 Relatórios", key="menu_relatorios", use_container_width=True):
+            st.session_state.pagina_atual = "Relatórios"
+            st.rerun()
+    
+    with col5:
+        if st.button("⚙️ Config", key="menu_config", use_container_width=True):
+            st.session_state.pagina_atual = "Configurações"
+            st.rerun()
+    
+    with col6:
+        if st.button("🚪 Sair", key="menu_sair", use_container_width=True):
+            st.session_state.autenticado = False
+            st.session_state.username = ""
+            st.session_state.user_id = None
+            st.session_state.pagina_atual = "Login"
+            st.session_state.carrinho = []
+            st.rerun()
+    
+    with col7:
+        if st.button("🔄", key="menu_atualizar", use_container_width=True):
+            st.rerun()
+    
+    # Fechar as tags HTML
+    st.markdown("""
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
-    # CSS dinâmico para destacar o botão ativo
-    active_css = f"""
-    <style>
-        button[key="menu_{st.session_state.pagina_atual.lower()}"] {{
-            background: white !important;
-            color: #667eea !important;
-            font-weight: 700 !important;
-            border-color: white !important;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
-        }}
-    </style>
-    """
-    if st.session_state.pagina_atual in ["Dashboard", "Estoque", "PDV", "Relatórios", "Configurações"]:
-        st.markdown(active_css, unsafe_allow_html=True)
+    # CSS para destacar o botão ativo
+    if pagina_atual == "Dashboard":
+        st.markdown("""
+        <style>
+            button[key="menu_dashboard"] {
+                background: white !important;
+                color: #667eea !important;
+                font-weight: 700 !important;
+                border-color: white !important;
+            }
+        </style>
+        """, unsafe_allow_html=True)
+    elif pagina_atual == "Estoque":
+        st.markdown("""
+        <style>
+            button[key="menu_estoque"] {
+                background: white !important;
+                color: #667eea !important;
+                font-weight: 700 !important;
+                border-color: white !important;
+            }
+        </style>
+        """, unsafe_allow_html=True)
+    elif pagina_atual == "PDV":
+        st.markdown("""
+        <style>
+            button[key="menu_pdv"] {
+                background: white !important;
+                color: #667eea !important;
+                font-weight: 700 !important;
+                border-color: white !important;
+            }
+        </style>
+        """, unsafe_allow_html=True)
+    elif pagina_atual == "Relatórios":
+        st.markdown("""
+        <style>
+            button[key="menu_relatorios"] {
+                background: white !important;
+                color: #667eea !important;
+                font-weight: 700 !important;
+                border-color: white !important;
+            }
+        </style>
+        """, unsafe_allow_html=True)
+    elif pagina_atual == "Configurações":
+        st.markdown("""
+        <style>
+            button[key="menu_config"] {
+                background: white !important;
+                color: #667eea !important;
+                font-weight: 700 !important;
+                border-color: white !important;
+            }
+        </style>
+        """, unsafe_allow_html=True)
 
 # ========== CONTEÚDO DAS PÁGINAS ==========
 st.markdown('<div class="conteudo">', unsafe_allow_html=True)
