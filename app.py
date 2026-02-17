@@ -30,10 +30,6 @@ st.set_page_config(
 )
 
 # ========== FUNÇÕES AUXILIARES ==========
-def redirecionar_pagina(pagina):
-    st.session_state.pagina_atual = pagina
-    st.rerun()
-
 def gerar_codigo(nome_input):
     if nome_input:
         import random
@@ -130,96 +126,100 @@ st.markdown("""
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
-    
-    header[data-testid="stHeader"] {
-        display: none !important;
-        visibility: hidden !important;
-        height: 0 !important;
-    }
+    header[data-testid="stHeader"] {display: none !important;}
     
     /* Reset de margens e paddings */
-    .main > div {
-        padding-top: 0 !important;
-    }
+    .main > div {padding-top: 0 !important;}
+    .block-container {padding-top: 0 !important; max-width: 100% !important;}
     
-    .block-container {
-        padding-top: 0 !important;
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
-        max-width: 100% !important;
-    }
-    
-    /* ===== CONTAINER ROXO ===== */
-    .topo-roxo {
+    /* ===== BARRA ROXA SUPERIOR ===== */
+    .barra-roxo {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 0.8rem 1.5rem;
-        border-radius: 0 0 15px 15px;
+        padding: 0.5rem 1.5rem;
+        border-radius: 0 0 10px 10px;
         margin-bottom: 2rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         width: 100%;
     }
     
-    /* Estilo para o nome do usuário */
+    /* Container flexível para alinhar tudo */
+    .menu-flex {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    /* Nome do usuário */
     .usuario-nome {
         background: rgba(255,255,255,0.15);
         color: white;
-        padding: 0.4rem 1.5rem;
-        border-radius: 40px;
+        padding: 0.3rem 1.2rem;
+        border-radius: 30px;
         font-weight: 600;
-        font-size: 1rem;
-        border: 1px solid rgba(255,255,255,0.3);
+        font-size: 0.95rem;
+        border: 1px solid rgba(255,255,255,0.2);
         white-space: nowrap;
-        display: inline-block;
-        text-align: center;
-        width: 100%;
     }
     
-    /* Estilo para os botões do menu */
-    div[data-testid="column"] .stButton button {
-        background: rgba(255,255,255,0.15) !important;
+    /* Estilo para os botões */
+    .botao-menu {
+        background: rgba(255,255,255,0.1) !important;
         color: white !important;
-        border: 1px solid rgba(255,255,255,0.3) !important;
-        padding: 0.4rem 0.8rem !important;
-        border-radius: 40px !important;
-        font-weight: 600 !important;
+        border: 1px solid rgba(255,255,255,0.2) !important;
+        padding: 0.3rem 1rem !important;
+        border-radius: 30px !important;
+        font-weight: 500 !important;
         font-size: 0.9rem !important;
-        transition: all 0.2s ease !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
-        width: 100% !important;
+        transition: all 0.2s !important;
+        box-shadow: none !important;
+        min-width: unset !important;
+        height: auto !important;
+        line-height: 1.4 !important;
         margin: 0 !important;
     }
     
-    div[data-testid="column"] .stButton button:hover {
-        background: rgba(255,255,255,0.25) !important;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
+    .botao-menu:hover {
+        background: rgba(255,255,255,0.2) !important;
+        transform: translateY(-1px);
     }
     
-    /* Botão ativo */
-    button[key="menu_dashboard"], 
-    button[key="menu_estoque"], 
-    button[key="menu_pdv"], 
-    button[key="menu_relatorios"], 
-    button[key="menu_config"] {
+    .botao-menu.ativo {
         background: white !important;
         color: #667eea !important;
         font-weight: 700 !important;
-        border-color: white !important;
     }
     
-    /* Botão sair */
-    button[key="menu_sair"] {
+    .botao-menu.sair {
         background: rgba(220, 53, 69, 0.8) !important;
     }
     
-    button[key="menu_sair"]:hover {
+    .botao-menu.sair:hover {
         background: rgba(220, 53, 69, 1) !important;
     }
     
-    /* Botão atualizar */
-    button[key="menu_atualizar"] {
+    .botao-menu.atualizar {
         background: linear-gradient(135deg, #28a745, #20c997) !important;
-        border: none !important;
+    }
+    
+    /* Container para os botões em linha */
+    .botoes-linha {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        flex-wrap: wrap;
+    }
+    
+    /* Responsividade */
+    @media (max-width: 768px) {
+        .menu-flex {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .botoes-linha {
+            width: 100%;
+            justify-content: center;
+        }
     }
     
     /* Espaço para o conteúdo */
@@ -229,50 +229,54 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ========== MENU SUPERIOR COM BOTÕES DO STREAMLIT DENTRO DO CONTAINER ROXO ==========
+# ========== MENU SUPERIOR ==========
 if st.session_state.autenticado:
     usuario_logado = st.session_state.username
     pagina_atual = st.session_state.pagina_atual
-
-    # Container roxo
-    with st.container():
-        st.markdown('<div class="topo-roxo">', unsafe_allow_html=True)
+    
+    # Abrir a barra roxa
+    st.markdown('<div class="barra-roxo">', unsafe_allow_html=True)
+    st.markdown('<div class="menu-flex">', unsafe_allow_html=True)
+    
+    # Coluna do nome do usuário
+    col_nome, col_botoes = st.columns([1, 5])
+    
+    with col_nome:
+        st.markdown(f'<span class="usuario-nome">👤 {usuario_logado}</span>', unsafe_allow_html=True)
+    
+    with col_botoes:
+        st.markdown('<div class="botoes-linha">', unsafe_allow_html=True)
         
-        # Primeira linha: nome do usuário
-        col_usuario = st.columns([1, 6, 1])[1]
-        with col_usuario:
-            st.markdown(f'<div class="usuario-nome">👤 {usuario_logado}</div>', unsafe_allow_html=True)
+        # Criando colunas para os botões
+        b_cols = st.columns(7)
         
-        # Segunda linha: botões do menu
-        col1, col2, col3, col4, col5, col6, col7, col8 = st.columns(8)
-        
-        with col1:
-            if st.button("🏠", key="menu_dashboard", use_container_width=True):
+        with b_cols[0]:
+            if st.button("🏠 Dashboard", key="menu_dashboard", use_container_width=True):
                 st.session_state.pagina_atual = "Dashboard"
                 st.rerun()
         
-        with col2:
-            if st.button("📦", key="menu_estoque", use_container_width=True):
+        with b_cols[1]:
+            if st.button("📦 Estoque", key="menu_estoque", use_container_width=True):
                 st.session_state.pagina_atual = "Estoque"
                 st.rerun()
         
-        with col3:
-            if st.button("💵", key="menu_pdv", use_container_width=True):
+        with b_cols[2]:
+            if st.button("💵 PDV", key="menu_pdv", use_container_width=True):
                 st.session_state.pagina_atual = "PDV"
                 st.rerun()
         
-        with col4:
-            if st.button("📊", key="menu_relatorios", use_container_width=True):
+        with b_cols[3]:
+            if st.button("📊 Relatórios", key="menu_relatorios", use_container_width=True):
                 st.session_state.pagina_atual = "Relatórios"
                 st.rerun()
         
-        with col5:
-            if st.button("⚙️", key="menu_config", use_container_width=True):
+        with b_cols[4]:
+            if st.button("⚙️ Config", key="menu_config", use_container_width=True):
                 st.session_state.pagina_atual = "Configurações"
                 st.rerun()
         
-        with col6:
-            if st.button("🚪", key="menu_sair", use_container_width=True):
+        with b_cols[5]:
+            if st.button("🚪 Sair", key="menu_sair", use_container_width=True):
                 st.session_state.autenticado = False
                 st.session_state.username = ""
                 st.session_state.user_id = None
@@ -280,16 +284,17 @@ if st.session_state.autenticado:
                 st.session_state.carrinho = []
                 st.rerun()
         
-        with col7:
+        with b_cols[6]:
             if st.button("🔄", key="menu_atualizar", use_container_width=True):
                 st.rerun()
         
-        with col8:
-            st.empty()
-        
         st.markdown('</div>', unsafe_allow_html=True)
-
-    # CSS dinâmico para destacar o botão ativo
+    
+    # Fechar tags
+    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # CSS para destacar o botão ativo
     if pagina_atual == "Dashboard":
         st.markdown("""
         <style>
