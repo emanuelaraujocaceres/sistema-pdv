@@ -33,9 +33,54 @@ if 'carrinho' not in st.session_state:
 if 'modo_login' not in st.session_state:
     st.session_state.modo_login = "login"  # "login" ou "criar"
 
-# CSS personalizado global com pull-to-refresh corrigido
+# CSS personalizado global com pull-to-refresh corrigido e remoção dos botões do Streamlit
 st.markdown("""
 <style>
+    /* ===== REMOVER BOTÕES DO STREAMLIT ===== */
+    /* Remover botões de share, star, edit e GitHub */
+    .stApp header .stActionButton,
+    .stApp header [data-testid="stActionButton"],
+    .stApp header [aria-label="Share"],
+    .stApp header [aria-label="Star"],
+    .stApp header [aria-label="Edit app"],
+    .stApp header [aria-label="Deploy"],
+    button[kind="header"],
+    button[kind="headerNoPadding"],
+    button[title="Share"],
+    button[title="Star"],
+    button[title="Edit app"],
+    button[title="Manage app"],
+    .st-emotion-cache-1wrcr25,
+    .st-emotion-cache-1miom6v,
+    .st-emotion-cache-1miom6v a {
+        display: none !important;
+    }
+    
+    /* Remover link do GitHub e "Deploy" */
+    .stApp header [data-testid="stStatusWidget"] {
+        display: none !important;
+    }
+    
+    /* Deixar o header mais compacto */
+    .stApp header {
+        background-color: transparent !important;
+        height: 0 !important;
+        min-height: 0 !important;
+    }
+    
+    /* Garantir que o conteúdo comece no topo */
+    .main > div {
+        padding-top: 0 !important;
+    }
+    
+    /* Para celular, garantir que o menu fique acessível */
+    @media (max-width: 768px) {
+        .stApp header {
+            display: none !important;
+        }
+    }
+    
+    /* ===== SEU CSS EXISTENTE ===== */
     /* Estilo para o menu lateral com botões */
     .sidebar .stButton button {
         text-align: left;
