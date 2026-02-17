@@ -16,7 +16,7 @@ st.set_page_config(
     initial_sidebar_state="auto"
 )
 
-# ========== INICIALIZAÇÃO DA SESSÃO ==========
+# ========== INICIALIZAÇÃO DA SESSÃO COM VERIFICAÇÃO ROBUSTA ==========
 # Verificar se usuário está autenticado na sessão
 if 'autenticado' not in st.session_state:
     st.session_state.autenticado = False
@@ -32,12 +32,13 @@ if 'carrinho' not in st.session_state:
     st.session_state.carrinho = []
 if 'modo_login' not in st.session_state:
     st.session_state.modo_login = "login"  # "login" ou "criar"
+if 'sidebar_should_close' not in st.session_state:
+    st.session_state.sidebar_should_close = False
 
-# CSS personalizado global com pull-to-refresh corrigido e remoção dos botões do Streamlit
+# CSS personalizado global
 st.markdown("""
 <style>
     /* ===== REMOVER BOTÕES DO STREAMLIT ===== */
-    /* Remover botões de share, star, edit e GitHub */
     .stApp header .stActionButton,
     .stApp header [data-testid="stActionButton"],
     .stApp header [aria-label="Share"],
@@ -52,12 +53,8 @@ st.markdown("""
     button[title="Manage app"],
     .st-emotion-cache-1wrcr25,
     .st-emotion-cache-1miom6v,
-    .st-emotion-cache-1miom6v a {
-        display: none !important;
-    }
-    
-    /* Remover link do GitHub e "Deploy" */
-    .stApp header [data-testid="stStatusWidget"] {
+    .st-emotion-cache-1miom6v a,
+    [data-testid="stStatusWidget"] {
         display: none !important;
     }
     
@@ -73,14 +70,6 @@ st.markdown("""
         padding-top: 0 !important;
     }
     
-    /* Para celular, garantir que o menu fique acessível */
-    @media (max-width: 768px) {
-        .stApp header {
-            display: none !important;
-        }
-    }
-    
-    /* ===== SEU CSS EXISTENTE ===== */
     /* Estilo para o menu lateral com botões */
     .sidebar .stButton button {
         text-align: left;
@@ -211,60 +200,68 @@ st.markdown("""
         opacity: 1;
     }
     
-    /* CORREÇÃO: Pull-to-refresh verdadeiro */
+    /* CORREÇÃO PARA PULL-TO-REFRESH - Versão simplificada */
     body {
         overscroll-behavior: auto !important;
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch !important;
-        height: 100% !important;
     }
     
     .main {
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch !important;
-        height: 100vh !important;
-        position: relative !important;
-    }
-    
-    .main > div {
-        min-height: 100% !important;
     }
     
     .stApp {
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch !important;
-        height: 100vh !important;
-    }
-    
-    /* Garantir que o scroll funcione em todos os elementos */
-    .element-container, .stMarkdown, .stDataFrame, [data-testid="stVerticalBlock"] {
-        overflow-y: visible !important;
-    }
-    
-    /* Remover qualquer overflow hidden que bloqueie o scroll */
-    * {
-        overflow-y: visible !important;
     }
 </style>
 
 <script>
-    // CORREÇÃO: Garantir que o pull-to-refresh funcione
-    document.addEventListener('touchstart', function(e) {
-        // Permitir pull-to-refresh quando estiver no topo da página
-        if (window.scrollY === 0) {
-            // Não fazer nada, permitir comportamento padrão
-        }
-    }, { passive: true });
-    
-    // CORREÇÃO: Prevenir que F5 deslogue o usuário
-    window.addEventListener('load', function() {
-        // Recarregar os dados sem perder a sessão
-        if (window.performance) {
-            if (performance.navigation.type === 1) {
-                console.log("Página recarregada - mantendo sessão");
-                // A sessão é mantida automaticamente pelo Streamlit
+    // FUNÇÃO PARA FECHAR A SIDEBAR NO CELULAR
+    function closeSidebarOnMobile() {
+        if (window.innerWidth < 768) {
+            // Tenta encontrar o botão de fechar a sidebar
+            const collapseBtn = document.querySelector('[data-testid="collapsed-control"]');
+            const sidebar = document.querySelector('[data-testid="stSidebar"]');
+            
+            // Se a sidebar estiver aberta e o botão existir, clica nele
+            if (sidebar && !sidebar.classList.contains('collapsed') && collapseBtn) {
+                setTimeout(() => {
+                    collapseBtn.click();
+                }, 100);
             }
         }
+    }
+    
+    // Fechar sidebar quando a página carregar (se necessário)
+    document.addEventListener('DOMContentLoaded', function() {
+        // Verificar se deve fechar a sidebar (via session state do Streamlit)
+        const shouldClose = document.body.getAttribute('data-close-sidebar');
+        if (shouldClose === 'true') {
+            closeSidebarOnMobile();
+        }
+    });
+    
+    // OBSERVAR MUDANÇAS NO CONTEÚDO (para capturar cliques no menu)
+    const observer = new MutationObserver(function(mutations) {
+        // Verificar se deve fechar a sidebar
+        const shouldClose = document.body.getAttribute('data-close-sidebar');
+        if (shouldClose === 'true') {
+            closeSidebarOnMobile();
+        }
+    });
+    
+    // Iniciar observação quando a página carregar
+    setTimeout(function() {
+        observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+    }, 1000);
+    
+    // CORREÇÃO PARA F5 - Manter sessão
+    window.addEventListener('beforeunload', function() {
+        // Não fazer nada especial, apenas permitir que o Streamlit gerencie
+        // A sessão é mantida automaticamente pelo Streamlit
     });
 </script>
 """, unsafe_allow_html=True)
@@ -360,6 +357,13 @@ if not st.session_state.autenticado:
 
 # ========== SISTEMA PRINCIPAL (APÓS LOGIN) ==========
 
+# Função para lidar com a navegação
+def navigate_to(page):
+    st.session_state.menu = page
+    # Marcar que a sidebar deve fechar no celular
+    st.session_state.sidebar_should_close = True
+    st.rerun()
+
 # Menu lateral
 with st.sidebar:
     st.image("https://img.icons8.com/color/96/000000/shop.png", width=80)
@@ -368,28 +372,23 @@ with st.sidebar:
     
     if st.button("🏠 Dashboard", use_container_width=True, 
                 type="primary" if st.session_state.menu == "🏠 Dashboard" else "secondary"):
-        st.session_state.menu = "🏠 Dashboard"
-        st.rerun()
+        navigate_to("🏠 Dashboard")
     
     if st.button("📦 Controle de Estoque", use_container_width=True,
                 type="primary" if st.session_state.menu == "📦 Controle de Estoque" else "secondary"):
-        st.session_state.menu = "📦 Controle de Estoque"
-        st.rerun()
+        navigate_to("📦 Controle de Estoque")
     
     if st.button("💵 PDV (Ponto de Venda)", use_container_width=True,
                 type="primary" if st.session_state.menu == "💵 PDV (Ponto de Venda)" else "secondary"):
-        st.session_state.menu = "💵 PDV (Ponto de Venda)"
-        st.rerun()
+        navigate_to("💵 PDV (Ponto de Venda)")
     
     if st.button("📊 Relatórios", use_container_width=True,
                 type="primary" if st.session_state.menu == "📊 Relatórios" else "secondary"):
-        st.session_state.menu = "📊 Relatórios"
-        st.rerun()
+        navigate_to("📊 Relatórios")
     
     if st.button("⚙️ Configurações", use_container_width=True,
                 type="primary" if st.session_state.menu == "⚙️ Configurações" else "secondary"):
-        st.session_state.menu = "⚙️ Configurações"
-        st.rerun()
+        navigate_to("⚙️ Configurações")
     
     st.markdown("---")
     
@@ -399,9 +398,25 @@ with st.sidebar:
         st.session_state.user_id = None
         st.session_state.menu = "🏠 Dashboard"
         st.session_state.carrinho = []
-        st.rerun()
-    
-    st.caption("Sistema Profissional v1.0")
+        navigate_to("🏠 Dashboard")
+
+# JavaScript para controlar o fechamento da sidebar
+if st.session_state.sidebar_should_close:
+    st.markdown("""
+    <script>
+        // Fechar a sidebar no celular
+        if (window.innerWidth < 768) {
+            setTimeout(function() {
+                const collapseBtn = document.querySelector('[data-testid="collapsed-control"]');
+                const sidebar = document.querySelector('[data-testid="stSidebar"]');
+                if (sidebar && !sidebar.classList.contains('collapsed') && collapseBtn) {
+                    collapseBtn.click();
+                }
+            }, 200);
+        }
+    </script>
+    """, unsafe_allow_html=True)
+    st.session_state.sidebar_should_close = False
 
 # Título principal
 st.title(f"💰 Sistema de Controle - {st.session_state.username}")
