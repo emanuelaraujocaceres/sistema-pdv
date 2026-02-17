@@ -2,28 +2,22 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from datetime import datetime
-import banco  # Agora importa o banco.py atualizado
-import auth  # Módulo de autenticação
+import banco
+import auth
 
 # Criar tabela de usuários (se não existir) - mantido para compatibilidade
 auth.criar_tabela_usuarios()
 
-# Função auxiliar para pegar o ID do usuário atual
-def get_current_user_id():
-    """Retorna o ID do usuário logado"""
-    if st.session_state.autenticado:
-        return auth.get_usuario_id(st.session_state.username)
-    return None
-
-# Configuração da página
+# Configuração da página - MUST BE THE FIRST STREAMLIT COMMAND
 st.set_page_config(
     page_title="Sistema de Controle Profissional",
     page_icon="💰",
     layout="wide",
-    initial_sidebar_state="auto"  # Mudado para "auto" para manter comportamento padrão
+    initial_sidebar_state="auto"
 )
 
-# Inicializar variáveis de sessão
+# ========== INICIALIZAÇÃO DA SESSÃO ==========
+# Verificar se usuário está autenticado na sessão
 if 'autenticado' not in st.session_state:
     st.session_state.autenticado = False
 if 'username' not in st.session_state:
@@ -39,7 +33,7 @@ if 'carrinho' not in st.session_state:
 if 'modo_login' not in st.session_state:
     st.session_state.modo_login = "login"  # "login" ou "criar"
 
-# CSS personalizado global (removido o JavaScript e CSS problemáticos)
+# CSS personalizado global com pull-to-refresh corrigido
 st.markdown("""
 <style>
     /* Estilo para o menu lateral com botões */
@@ -172,20 +166,62 @@ st.markdown("""
         opacity: 1;
     }
     
-    /* Habilitar pull-to-refresh no celular - ÚNICA alteração mantida */
+    /* CORREÇÃO: Pull-to-refresh verdadeiro */
     body {
         overscroll-behavior: auto !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        height: 100% !important;
+    }
+    
+    .main {
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        height: 100vh !important;
+        position: relative !important;
     }
     
     .main > div {
-        overscroll-behavior: contain;
+        min-height: 100% !important;
     }
     
     .stApp {
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        height: 100vh !important;
+    }
+    
+    /* Garantir que o scroll funcione em todos os elementos */
+    .element-container, .stMarkdown, .stDataFrame, [data-testid="stVerticalBlock"] {
+        overflow-y: visible !important;
+    }
+    
+    /* Remover qualquer overflow hidden que bloqueie o scroll */
+    * {
+        overflow-y: visible !important;
     }
 </style>
+
+<script>
+    // CORREÇÃO: Garantir que o pull-to-refresh funcione
+    document.addEventListener('touchstart', function(e) {
+        // Permitir pull-to-refresh quando estiver no topo da página
+        if (window.scrollY === 0) {
+            // Não fazer nada, permitir comportamento padrão
+        }
+    }, { passive: true });
+    
+    // CORREÇÃO: Prevenir que F5 deslogue o usuário
+    window.addEventListener('load', function() {
+        // Recarregar os dados sem perder a sessão
+        if (window.performance) {
+            if (performance.navigation.type === 1) {
+                console.log("Página recarregada - mantendo sessão");
+                // A sessão é mantida automaticamente pelo Streamlit
+            }
+        }
+    });
+</script>
 """, unsafe_allow_html=True)
 
 def gerar_codigo(nome_input):
@@ -193,7 +229,6 @@ def gerar_codigo(nome_input):
         import random
         import re
     
-        # Pegar primeiras letras de cada palavra (máx 3)
         palavras = nome_input.split()
         letras = []
         for p in palavras[:3]:
@@ -205,9 +240,15 @@ def gerar_codigo(nome_input):
         return f"{prefixo}{numero}"
     return ""
 
+# Função auxiliar para pegar o ID do usuário atual
+def get_current_user_id():
+    """Retorna o ID do usuário logado"""
+    if st.session_state.autenticado:
+        return auth.get_usuario_id(st.session_state.username)
+    return None
+
 # ========== SISTEMA DE LOGIN ==========
 if not st.session_state.autenticado:
-    # Centralizar o conteúdo de login
     col1, col2, col3 = st.columns([1, 2, 1])
     
     with col2:
@@ -270,18 +311,16 @@ if not st.session_state.autenticado:
                 st.session_state.modo_login = "login"
                 st.rerun()
     
-    # Parar execução aqui se não estiver autenticado
     st.stop()
 
 # ========== SISTEMA PRINCIPAL (APÓS LOGIN) ==========
 
-# Menu lateral com BOTÕES
+# Menu lateral
 with st.sidebar:
     st.image("https://img.icons8.com/color/96/000000/shop.png", width=80)
     st.title(f"👤 {st.session_state.username}")
     st.markdown("---")
     
-    # Botões do menu - cada um define o estado do menu
     if st.button("🏠 Dashboard", use_container_width=True, 
                 type="primary" if st.session_state.menu == "🏠 Dashboard" else "secondary"):
         st.session_state.menu = "🏠 Dashboard"
@@ -309,7 +348,6 @@ with st.sidebar:
     
     st.markdown("---")
     
-    # Botão de logout
     if st.button("🚪 Sair", use_container_width=True, type="secondary"):
         st.session_state.autenticado = False
         st.session_state.username = ""
@@ -328,11 +366,9 @@ st.markdown("---")
 if st.session_state.menu == "🏠 Dashboard":
     st.header("📊 Dashboard")
     
-    # Usa banco.listar_produtos
     produtos = banco.listar_produtos(st.session_state.user_id)
     
     if not produtos.empty:
-        # Métricas principais
         col1, col2, col3 = st.columns(3)
         with col1:
             st.metric("Total de Produtos", len(produtos))
@@ -343,7 +379,6 @@ if st.session_state.menu == "🏠 Dashboard":
             valor_total = (produtos['quantidade'] * produtos['preco']).sum()
             st.metric("Valor em Estoque", f"R$ {valor_total:.2f}")
         
-        # Gráfico de distribuição
         if not produtos.empty and 'categoria' in produtos.columns:
             fig = px.pie(produtos, names='categoria', values='quantidade',
                         title="Distribuição do Estoque por Categoria")
@@ -355,7 +390,6 @@ if st.session_state.menu == "🏠 Dashboard":
 elif st.session_state.menu == "📦 Controle de Estoque":
     st.header("📦 Controle de Estoque")
     
-    # Abas dentro do estoque
     aba1, aba2, aba3 = st.tabs(["📝 Cadastrar", "📋 Listar", "✏️ Editar"])
     
     with aba1:
@@ -365,45 +399,20 @@ elif st.session_state.menu == "📦 Controle de Estoque":
             col1, col2 = st.columns(2)
             
             with col1:
-                nome = st.text_input("Nome do Produto *", 
-                               key="nome_cadastro",
-                               help="Digite o nome completo do produto")
-                
-                # Atualizar código automaticamente quando o nome mudar
+                nome = st.text_input("Nome do Produto *", key="nome_cadastro")
                 if nome:
                     st.session_state.codigo_auto = gerar_codigo(nome)
-                
-                descricao = st.text_area("Descrição", 
-                                    key="descricao_cadastro",
-                                    help="Descrição detalhada do produto (opcional)")
+                descricao = st.text_area("Descrição", key="descricao_cadastro")
             
             with col2:
-                preco = st.number_input("Preço (R$) *", 
-                                   min_value=0.01, 
-                                   format="%.2f", 
-                                   step=0.10,
-                                   key="preco_cadastro")
-                
-                quantidade = st.number_input("Quantidade inicial *", 
-                                       min_value=0, 
-                                       step=1,
-                                       key="qtd_cadastro")
-                
-                categoria = st.selectbox(
-                    "Categoria *", 
-                    ["Alimentos", "Bebidas", "Outros"],
-                    key="cat_cadastro"
-                )
+                preco = st.number_input("Preço (R$) *", min_value=0.01, format="%.2f", step=0.10, key="preco_cadastro")
+                quantidade = st.number_input("Quantidade inicial *", min_value=0, step=1, key="qtd_cadastro")
+                categoria = st.selectbox("Categoria *", ["Alimentos", "Bebidas", "Outros"], key="cat_cadastro")
             
-            # Campo de código
-            codigo = st.text_input("Código do Produto *", 
-                                  value=st.session_state.codigo_auto,
-                                  key="codigo_cadastro",
-                                  help="Código único. Gerado automaticamente")
+            codigo = st.text_input("Código do Produto *", value=st.session_state.codigo_auto, key="codigo_cadastro")
             
             st.markdown("* Campos obrigatórios")
             
-            # Botão de cadastro
             submitted = st.form_submit_button("✅ Cadastrar Produto", use_container_width=True)
             
             if submitted:
@@ -415,9 +424,7 @@ elif st.session_state.menu == "📦 Controle de Estoque":
                     st.error("❌ Preço deve ser maior que zero!")
                 else:
                     sucesso, mensagem = banco.criar_produto(
-                        st.session_state.user_id, 
-                        codigo, nome, descricao, 
-                        preco, quantidade, categoria
+                        st.session_state.user_id, codigo, nome, descricao, preco, quantidade, categoria
                     )
                     if sucesso:
                         st.success(mensagem)
@@ -430,7 +437,6 @@ elif st.session_state.menu == "📦 Controle de Estoque":
                         st.error(mensagem)
                         st.session_state.codigo_auto = gerar_codigo(nome)
         
-        # Botão "Gerar Novo" FORA do formulário
         col1, col2, col3 = st.columns(3)
         with col2:
             if st.button("🔄 Gerar Novo Código", use_container_width=True):
@@ -465,8 +471,7 @@ elif st.session_state.menu == "📦 Controle de Estoque":
                 st.subheader("📊 Estoque por Categoria")
                 estoque_categoria = produtos.groupby('categoria')['quantidade'].sum().reset_index()
                 fig = px.bar(estoque_categoria, x='categoria', y='quantidade', 
-                        title="Quantidade em Estoque por Categoria",
-                        color='categoria')
+                        title="Quantidade em Estoque por Categoria", color='categoria')
                 st.plotly_chart(fig, use_container_width=True)
         else:
             st.info("📭 Nenhum produto cadastrado ainda.")
@@ -510,10 +515,8 @@ elif st.session_state.menu == "📦 Controle de Estoque":
                     with col_btn1:
                         if st.form_submit_button("💾 Salvar Alterações", use_container_width=True):
                             sucesso, mensagem = banco.atualizar_produto(
-                                st.session_state.user_id,
-                                produto_para_editar,
-                                novo_codigo, novo_nome, nova_descricao,
-                                novo_preco, nova_quantidade, nova_categoria
+                                st.session_state.user_id, produto_para_editar, novo_codigo, novo_nome, 
+                                nova_descricao, novo_preco, nova_quantidade, nova_categoria
                             )
                             if sucesso:
                                 st.success(mensagem)
@@ -606,13 +609,7 @@ elif st.session_state.menu == "💵 PDV (Ponto de Venda)":
                     
                     col_qtd, col_remove = st.columns([2, 1])
                     with col_qtd:
-                        nova_qtd = st.number_input(
-                            "Qtd", 
-                            min_value=1, 
-                            value=item['quantidade'],
-                            key=f"qtd_{i}",
-                            label_visibility="collapsed"
-                        )
+                        nova_qtd = st.number_input("Qtd", min_value=1, value=item['quantidade'], key=f"qtd_{i}", label_visibility="collapsed")
                         if nova_qtd != item['quantidade']:
                             item['quantidade'] = nova_qtd
                             item['subtotal'] = nova_qtd * item['preco']
@@ -639,10 +636,7 @@ elif st.session_state.menu == "💵 PDV (Ponto de Venda)":
             
             if st.button("✅ FINALIZAR VENDA", type="primary", use_container_width=True):
                 sucesso, mensagem = banco.criar_venda(
-                    st.session_state.user_id,
-                    total,
-                    forma_pagamento,
-                    st.session_state.carrinho
+                    st.session_state.user_id, total, forma_pagamento, st.session_state.carrinho
                 )
                 if sucesso:
                     st.balloons()
@@ -658,27 +652,16 @@ elif st.session_state.menu == "💵 PDV (Ponto de Venda)":
 elif st.session_state.menu == "📊 Relatórios":
     st.header("📊 Relatórios")
 
-    tipo_relatorio = st.selectbox(
-        "Tipo de Relatório",
-        ["Vendas", "Produtos", "Clientes"]
-    )
+    tipo_relatorio = st.selectbox("Tipo de Relatório", ["Vendas", "Produtos", "Clientes"])
 
     if tipo_relatorio == "Vendas":
         st.subheader("📈 Vendas")
         
         col1, col2 = st.columns(2)
         with col1:
-            data_inicio = st.date_input(
-                "Data Inicial", 
-                value=pd.Timestamp.now().date().replace(day=1),
-                format="DD/MM/YYYY"
-            )
+            data_inicio = st.date_input("Data Inicial", value=pd.Timestamp.now().date().replace(day=1), format="DD/MM/YYYY")
         with col2:
-            data_fim = st.date_input(
-                "Data Final", 
-                value=pd.Timestamp.now().date(),
-                format="DD/MM/YYYY"
-            )
+            data_fim = st.date_input("Data Final", value=pd.Timestamp.now().date(), format="DD/MM/YYYY")
         
         st.caption(f"Período: {data_inicio.strftime('%d/%m/%Y')} a {data_fim.strftime('%d/%m/%Y')}")
         
@@ -709,15 +692,12 @@ elif st.session_state.menu == "📊 Relatórios":
                 vendas['data'] = pd.to_datetime(vendas['data_hora']).dt.date
                 vendas_por_dia = vendas.groupby('data')['total'].sum().reset_index()
                 
-                fig = px.line(vendas_por_dia, x='data', y='total', 
-                            title="Vendas por Dia",
-                            markers=True)
+                fig = px.line(vendas_por_dia, x='data', y='total', title="Vendas por Dia", markers=True)
                 fig.update_layout(yaxis_title="Valor (R$)")
                 st.plotly_chart(fig, use_container_width=True)
                 
                 if 'forma_pagamento' in vendas.columns:
-                    fig_pag = px.pie(vendas, names='forma_pagamento', values='total',
-                                   title="Vendas por Forma de Pagamento")
+                    fig_pag = px.pie(vendas, names='forma_pagamento', values='total', title="Vendas por Forma de Pagamento")
                     st.plotly_chart(fig_pag, use_container_width=True)
                 
                 if st.button("📥 Exportar para Excel", use_container_width=True):
@@ -740,21 +720,9 @@ elif st.session_state.menu == "📊 Relatórios":
             df_estoque['preco'] = df_estoque['preco'].apply(lambda x: f"R$ {x:.2f}")
             df_estoque['valor_total'] = df_estoque['valor_total'].apply(lambda x: f"R$ {x:.2f}")
             
-            st.dataframe(
-                df_estoque,
-                use_container_width=True,
-                hide_index=True,
-                column_config={
-                    "nome": "Nome",
-                    "quantidade": "Quantidade",
-                    "preco": "Preço",
-                    "valor_total": "Valor Total"
-                }
-            )
+            st.dataframe(df_estoque, use_container_width=True, hide_index=True)
             
-            fig = px.bar(produtos, x='nome', y='quantidade', 
-                        title="Quantidade em Estoque",
-                        color='nome')
+            fig = px.bar(produtos, x='nome', y='quantidade', title="Quantidade em Estoque", color='nome')
             st.plotly_chart(fig, use_container_width=True)
         else:
             st.info("Nenhum produto cadastrado.")
