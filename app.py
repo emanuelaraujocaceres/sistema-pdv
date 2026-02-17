@@ -330,28 +330,56 @@ if not st.session_state.autenticado:
     st.stop()
 
 # ========== MENU SUPERIOR FIXO ==========
-menu_html = f"""
+st.markdown("""
 <div class="menu-superior">
     <div class="menu-links">
         <span class="usuario-info">👤 {st.session_state.username}</span>
-        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Dashboard' else ''}" 
-                onclick="window.location.href='?pagina=Dashboard'">🏠 Dashboard</button>
-        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Estoque' else ''}" 
-                onclick="window.location.href='?pagina=Estoque'">📦 Estoque</button>
-        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'PDV' else ''}" 
-                onclick="window.location.href='?pagina=PDV'">💵 PDV</button>
-        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Relatórios' else ''}" 
-                onclick="window.location.href='?pagina=Relatórios'">📊 Relatórios</button>
-        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Configurações' else ''}" 
-                onclick="window.location.href='?pagina=Configurações'">⚙️ Config.</button>
-        <button class="menu-link" onclick="window.location.href='?logout=true'">🚪 Sair</button>
     </div>
-    <button class="botao-atualizar" onclick="location.reload()">🔄 Atualizar</button>
 </div>
 <div class="conteudo">
-"""
+""", unsafe_allow_html=True)
 
-st.markdown(menu_html, unsafe_allow_html=True)
+col1, col2, col3, col4, col5, col6 = st.columns(6)
+
+with col1:
+    if st.button("🏠 Dashboard", use_container_width=True):
+        st.session_state.pagina_atual = "Dashboard"
+        st.experimental_set_query_params(pagina="Dashboard")
+        st.rerun()
+
+with col2:
+    if st.button("📦 Estoque", use_container_width=True):
+        st.session_state.pagina_atual = "Estoque"
+        st.experimental_set_query_params(pagina="Estoque")
+        st.rerun()
+
+with col3:
+    if st.button("💵 PDV", use_container_width=True):
+        st.session_state.pagina_atual = "PDV"
+        st.experimental_set_query_params(pagina="PDV")
+        st.rerun()
+
+with col4:
+    if st.button("📊 Relatórios", use_container_width=True):
+        st.session_state.pagina_atual = "Relatórios"
+        st.experimental_set_query_params(pagina="Relatórios")
+        st.rerun()
+
+with col5:
+    if st.button("⚙️ Config.", use_container_width=True):
+        st.session_state.pagina_atual = "Configurações"
+        st.experimental_set_query_params(pagina="Configurações")
+        st.rerun()
+
+with col6:
+    if st.button("🚪 Sair", use_container_width=True):
+        st.session_state.autenticado = False
+        st.session_state.username = ""
+        st.session_state.user_id = None
+        st.session_state.pagina_atual = "Login"
+        st.session_state.carrinho = []
+        st.experimental_set_query_params()
+        st.rerun()
 
 # Corrigir comportamento de F5 e pull-to-refresh
 query_params = st.experimental_get_query_params() if hasattr(st, 'experimental_get_query_params') else {}
@@ -379,29 +407,15 @@ if not st.session_state.autenticado:
 # Atualizar a URL para refletir a página atual
 st.experimental_set_query_params(pagina=st.session_state.pagina_atual)
 
-# Substituir os botões do menu para usar redirecionamento interno
-menu_html = f"""
+# Substituir o menu HTML por botões Streamlit para evitar erros de React
+st.markdown("""
 <div class="menu-superior">
     <div class="menu-links">
         <span class="usuario-info">👤 {st.session_state.username}</span>
-        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Dashboard' else ''}" 
-                onclick="window.location.href='?pagina=Dashboard'">🏠 Dashboard</button>
-        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Estoque' else ''}" 
-                onclick="window.location.href='?pagina=Estoque'">📦 Estoque</button>
-        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'PDV' else ''}" 
-                onclick="window.location.href='?pagina=PDV'">💵 PDV</button>
-        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Relatórios' else ''}" 
-                onclick="window.location.href='?pagina=Relatórios'">📊 Relatórios</button>
-        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Configurações' else ''}" 
-                onclick="window.location.href='?pagina=Configurações'">⚙️ Config.</button>
-        <button class="menu-link" onclick="window.location.href='?logout=true'">🚪 Sair</button>
     </div>
-    <button class="botao-atualizar" onclick="location.reload()">🔄 Atualizar</button>
 </div>
 <div class="conteudo">
-"""
-
-st.markdown(menu_html, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
 # ========== CONTEÚDO DAS PÁGINAS ==========
 pagina_atual = st.session_state.pagina_atual
