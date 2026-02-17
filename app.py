@@ -165,7 +165,7 @@ st.markdown("""
     }
     
     .conteudo {
-        margin-top: 90px;
+        margin-top: 60px !important; /* Ajustar para evitar sobreposição */
         padding: 30px;
         background-color: #f8f9fa;
         min-height: calc(100vh - 90px);
@@ -352,12 +352,20 @@ st.markdown(f"""
 <div class="conteudo">
 """, unsafe_allow_html=True)
 
-# Ajustar estilos para remover o espaço em branco no topo
+# Ajustar estilos para remover os quadrados brancos acima dos botões do menu
 st.markdown("""
 <style>
     .block-container {
         padding-top: 0 !important;
-        margin-top: -50px !important;
+        margin-top: 0 !important;
+    }
+
+    .menu-superior {
+        margin-bottom: 0 !important;
+    }
+
+    .conteudo {
+        margin-top: 60px !important; /* Ajustar para evitar sobreposição */
     }
 </style>
 """, unsafe_allow_html=True)
