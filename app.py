@@ -88,45 +88,61 @@ st.markdown("""
         display: none !important;
     }
     
-    /* ===== MENU SUPERIOR FIXO ===== */
+    /* ===== MENU SUPERIOR COMPACTO ===== */
     .menu-superior {
         position: fixed;
         top: 0;
         left: 0;
         right: 0;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 15px 30px;
+        padding: 8px 20px;
         z-index: 1000;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-        flex-wrap: wrap;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        height: 50px;
     }
     
-    .menu-links {
+    .menu-esquerda {
         display: flex;
-        gap: 15px;
-        flex-wrap: wrap;
         align-items: center;
+        gap: 15px;
+    }
+    
+    .usuario-info {
+        color: white;
+        font-weight: 500;
+        padding: 4px 12px;
+        background: rgba(255,255,255,0.15);
+        border-radius: 20px;
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+    
+    .menu-botoes {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+        flex-wrap: wrap;
     }
     
     .menu-link {
         color: white;
         text-decoration: none;
-        padding: 8px 16px;
-        border-radius: 8px;
+        padding: 4px 12px;
+        border-radius: 20px;
         font-weight: 500;
-        transition: all 0.3s;
+        font-size: 0.9rem;
+        transition: all 0.2s;
         background-color: rgba(255,255,255,0.1);
         border: 1px solid rgba(255,255,255,0.2);
         cursor: pointer;
+        white-space: nowrap;
     }
     
     .menu-link:hover {
         background-color: rgba(255,255,255,0.2);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
     
     .menu-link.ativo {
@@ -139,100 +155,92 @@ st.markdown("""
     .botao-atualizar {
         background: linear-gradient(135deg, #28a745, #20c997);
         color: white;
-        padding: 8px 24px;
-        border-radius: 8px;
+        padding: 4px 16px;
+        border-radius: 20px;
         text-decoration: none;
         font-weight: bold;
         border: none;
         cursor: pointer;
-        transition: all 0.3s;
-        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        font-size: 0.9rem;
+        transition: all 0.2s;
+        box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+        white-space: nowrap;
     }
     
     .botao-atualizar:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
-        background: linear-gradient(135deg, #20c997, #28a745);
-    }
-    
-    .usuario-info {
-        color: white;
-        font-weight: 500;
-        margin-right: 15px;
-        padding: 8px 16px;
-        background: rgba(255,255,255,0.15);
-        border-radius: 8px;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
     }
     
     .conteudo {
-        margin-top: 90px;
-        padding: 30px;
+        margin-top: 58px;
+        padding: 20px;
         background-color: #f8f9fa;
-        min-height: calc(100vh - 90px);
+        min-height: calc(100vh - 58px);
     }
     
     /* ===== RESPONSIVIDADE ===== */
     @media (max-width: 768px) {
         .menu-superior {
+            height: auto;
+            padding: 8px;
             flex-direction: column;
-            padding: 15px;
-            gap: 15px;
+            gap: 8px;
         }
         
-        .menu-links {
+        .menu-esquerda {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .menu-botoes {
             justify-content: center;
             width: 100%;
         }
         
         .conteudo {
-            margin-top: 150px;
-            padding: 15px;
+            margin-top: 100px;
         }
     }
     
     @media (max-width: 480px) {
-        .menu-links {
+        .menu-botoes {
             flex-direction: column;
-            width: 100%;
+            gap: 5px;
         }
         
-        .menu-link {
-            width: 100%;
-            text-align: center;
-        }
-        
-        .botao-atualizar {
+        .menu-link, .botao-atualizar {
             width: 100%;
             text-align: center;
         }
         
         .conteudo {
-            margin-top: 280px;
+            margin-top: 220px;
         }
     }
     
     /* ===== ESTILOS EXISTENTES ===== */
     .produto-card {
         background-color: #ffffff;
-        padding: 20px;
-        border-radius: 12px;
-        margin: 10px 0;
-        border-left: 5px solid #667eea;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        padding: 15px;
+        border-radius: 10px;
+        margin: 8px 0;
+        border-left: 4px solid #667eea;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
 
     .carrinho-item {
         background-color: #f1f8ff;
-        padding: 12px;
-        border-radius: 8px;
-        margin: 8px 0;
+        padding: 10px;
+        border-radius: 6px;
+        margin: 5px 0;
         color: #333333 !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
 
     [data-testid="stMetricValue"] {
         color: #667eea !important;
-        font-size: 2.5rem !important;
+        font-size: 2rem !important;
         font-weight: bold;
     }
 
@@ -244,19 +252,20 @@ st.markdown("""
         color: #000000 !important;
         background-color: #ffffff !important;
         border: 1px solid #ddd !important;
-        border-radius: 8px;
-        padding: 10px;
+        border-radius: 6px;
+        padding: 8px;
     }
     
     .stButton button {
-        border-radius: 8px;
-        font-weight: 600;
-        transition: all 0.3s;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: all 0.2s;
     }
     
-    .stButton button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    .block-container {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+        max-width: 100% !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -329,173 +338,56 @@ if not st.session_state.autenticado:
     
     st.stop()
 
-# ========== MENU SUPERIOR FIXO ==========
-st.markdown("""
+# ========== MENU SUPERIOR COMPACTO ==========
+usuario_logado = st.session_state.username if st.session_state.autenticado else "Usuário"
+
+menu_html = f"""
 <div class="menu-superior">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-        <span class="usuario-info">👤 {st.session_state.username if st.session_state.get('autenticado', False) else 'Usuário não logado'}</span>
-        <button class="menu-toggle" onclick="document.getElementById('menu-lateral').classList.toggle('show')">☰</button>
-    </div>
-</div>
-<div id="menu-lateral" class="menu-lateral">
-    <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Dashboard' else ''}" 
-            onclick="window.location.href='?pagina=Dashboard'">🏠 Dashboard</button>
-    <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Estoque' else ''}" 
-            onclick="window.location.href='?pagina=Estoque'">📦 Estoque</button>
-    <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'PDV' else ''}" 
-            onclick="window.location.href='?pagina=PDV'">💵 PDV</button>
-    <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Relatórios' else ''}" 
-            onclick="window.location.href='?pagina=Relatórios'">📊 Relatórios</button>
-    <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Configurações' else ''}" 
-            onclick="window.location.href='?pagina=Configurações'">⚙️ Config.</button>
-    <button class="menu-link" onclick="window.location.href='?logout=true'">🚪 Sair</button>
-</div>
-""", unsafe_allow_html=True)
-
-# Adicionar estilos para o botão de menu e o menu lateral
-st.markdown("""
-<style>
-    .menu-superior {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 15px 30px;
-        z-index: 1000;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-    }
-
-    .menu-toggle {
-        background: none;
-        border: none;
-        color: white;
-        font-size: 1.5rem;
-        cursor: pointer;
-        padding: 5px 10px;
-    }
-
-    .menu-lateral {
-        display: none;
-        position: fixed;
-        top: 60px;
-        right: 0;
-        background: #333;
-        color: white;
-        width: 200px;
-        height: calc(100% - 60px);
-        box-shadow: -2px 0 5px rgba(0,0,0,0.5);
-        padding: 20px;
-        z-index: 1001;
-    }
-
-    .menu-lateral.show {
-        display: block;
-    }
-
-    .menu-link {
-        display: block;
-        color: white;
-        text-decoration: none;
-        padding: 10px;
-        margin-bottom: 10px;
-        border-radius: 5px;
-        background: rgba(255,255,255,0.1);
-        transition: background 0.3s;
-    }
-
-    .menu-link:hover {
-        background: rgba(255,255,255,0.2);
-    }
-
-    .menu-link.ativo {
-        background: white;
-        color: #667eea;
-        font-weight: bold;
-    }
-</style>
-""", unsafe_allow_html=True)
-
-# Corrigir exibição do nome do usuário logado e remover espaço em branco
-usuario_logado = st.session_state.username if st.session_state.get('autenticado', False) and st.session_state.username else "Usuário não logado"
-
-# Atualizar o HTML do menu superior para exibir o nome do usuário corretamente
-st.markdown(f"""
-<div class="menu-superior">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
+    <div class="menu-esquerda">
         <span class="usuario-info">👤 {usuario_logado}</span>
     </div>
+    <div class="menu-botoes">
+        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Dashboard' else ''}" 
+                onclick="window.location.href='?pagina=Dashboard'">🏠 Dashboard</button>
+        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Estoque' else ''}" 
+                onclick="window.location.href='?pagina=Estoque'">📦 Estoque</button>
+        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'PDV' else ''}" 
+                onclick="window.location.href='?pagina=PDV'">💵 PDV</button>
+        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Relatórios' else ''}" 
+                onclick="window.location.href='?pagina=Relatórios'">📊 Relatórios</button>
+        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Configurações' else ''}" 
+                onclick="window.location.href='?pagina=Configurações'">⚙️ Config</button>
+        <button class="menu-link" onclick="window.location.href='?logout=true'">🚪 Sair</button>
+        <button class="botao-atualizar" onclick="location.reload()">🔄 Atualizar</button>
+    </div>
 </div>
-""", unsafe_allow_html=True)
+<div class="conteudo">
+"""
 
-# Ajustar estilos para remover os quadrados brancos acima dos botões do menu
-st.markdown("""
-<style>
-    .block-container {
-        padding-top: 0 !important;
-        margin-top: 0 !important;
-    }
+st.markdown(menu_html, unsafe_allow_html=True)
 
-    .menu-superior {
-        margin-bottom: 0 !important;
-    }
+# ========== PROCESSAR PARÂMETROS DA URL ==========
+query_params = st.query_params
 
-    .conteudo {
-        margin-top: 90px;
-        padding: 30px;
-        background-color: #f8f9fa;
-        min-height: calc(100vh - 90px);
-    }
-</style>
-""", unsafe_allow_html=True)
+if "pagina" in query_params:
+    pagina = query_params["pagina"]
+    if pagina in ["Dashboard", "Estoque", "PDV", "Relatórios", "Configurações"]:
+        if st.session_state.pagina_atual != pagina:
+            st.session_state.pagina_atual = pagina
+            st.rerun()
 
-# Remover completamente o uso de st.experimental_set_query_params()
-# Gerenciar a navegação e o estado da página apenas com st.session_state
+if "logout" in query_params:
+    st.session_state.autenticado = False
+    st.session_state.username = ""
+    st.session_state.user_id = None
+    st.session_state.pagina_atual = "Login"
+    st.session_state.carrinho = []
+    st.rerun()
 
-# Substituir os botões para refletir a navegação sem query params
-col1, col2, col3, col4, col5, col6 = st.columns(6)
+# ========== CONTEÚDO DAS PÁGINAS ==========
+pagina_atual = st.session_state.pagina_atual
 
-with col1:
-    if st.button("🏠 Dashboard", use_container_width=True):
-        st.session_state.pagina_atual = "Dashboard"
-        st.rerun()
-
-with col2:
-    if st.button("📦 Estoque", use_container_width=True):
-        st.session_state.pagina_atual = "Estoque"
-        st.rerun()
-
-with col3:
-    if st.button("💵 PDV", use_container_width=True):
-        st.session_state.pagina_atual = "PDV"
-        st.rerun()
-
-with col4:
-    if st.button("📊 Relatórios", use_container_width=True):
-        st.session_state.pagina_atual = "Relatórios"
-        st.rerun()
-
-with col5:
-    if st.button("⚙️ Config.", use_container_width=True):
-        st.session_state.pagina_atual = "Configurações"
-        st.rerun()
-
-with col6:
-    if st.button("🚪 Sair", use_container_width=True):
-        st.session_state.autenticado = False
-        st.session_state.username = ""
-        st.session_state.user_id = None
-        st.session_state.pagina_atual = "Login"
-        st.session_state.carrinho = []
-        st.rerun()
-
-# Atualizar a página atual com base no estado da sessão
-pagina_atual = st.session_state.get("pagina_atual", "Login")
-
-# Renderizar o conteúdo da página com base no estado atual
+# ===== DASHBOARD =====
 if pagina_atual == "Dashboard":
     st.header("📊 Dashboard")
     
@@ -755,8 +647,8 @@ elif pagina_atual == "PDV":
                     st.divider()
             
             st.markdown(f"""
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; text-align: center; margin: 20px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-                <h2 style="margin:0;">TOTAL: R$ {total:.2f}</h2>
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 10px; text-align: center; margin: 15px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <h3 style="margin:0;">TOTAL: R$ {total:.2f}</h3>
             </div>
             """, unsafe_allow_html=True)
             
@@ -834,7 +726,7 @@ elif pagina_atual == "Relatórios":
                                    color_discrete_sequence=px.colors.qualitative.Set3)
                     st.plotly_chart(fig_pag, use_container_width=True)
             else:
-                st.info(f"Nenhuma venda encontrada no período selecionado.")
+                st.info("Nenhuma venda encontrada no período selecionado.")
 
     elif tipo_relatorio == "Produtos":
         st.subheader("📦 Produtos")
