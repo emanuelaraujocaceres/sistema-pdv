@@ -58,8 +58,8 @@ if not st.session_state.autenticado:
     with col2:
         st.markdown("""
         <div style="text-align: center; padding: 40px 0;">
-            <h1 style="color: #667eea;">💰 Sistema de Controle</h1>
-            <p style="color: #666; font-size: 1.1rem;">Profissional</p>
+            <h1 style="color: #1e3c72;">💰 Sistema de Controle</h1>
+            <p style="color: #2a5298; font-size: 1.1rem;">Profissional</p>
         </div>
         """, unsafe_allow_html=True)
         
@@ -119,79 +119,91 @@ if not st.session_state.autenticado:
     
     st.stop()
 
-# ========== CSS PERSONALIZADO ==========
+# ========== CSS PERSONALIZADO MODERNO ==========
 st.markdown("""
 <style>
-    /* ===== REMOVER TODOS OS ELEMENTOS DO STREAMLIT ===== */
+    /* ===== REMOVER ELEMENTOS PADRÃO ===== */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
     header[data-testid="stHeader"] {display: none !important;}
     
-    /* Reset de margens e paddings */
+    /* ===== RESET DE ESPAÇAMENTOS ===== */
     .main > div {padding-top: 0 !important;}
     .block-container {padding-top: 0 !important; max-width: 100% !important;}
     
-    /* ===== BARRA ROXA SUPERIOR ===== */
-    .barra-superior {
+    /* ===== ESTILOS GLOBAIS ===== */
+    .stApp {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 0.8rem 2rem;
-        border-radius: 0 0 15px 15px;
+    }
+    
+    /* ===== CABEÇALHO COM NOME DO USUÁRIO ===== */
+    .cabecalho {
+        background: rgba(255, 255, 255, 0.95);
+        padding: 1rem 2rem;
+        border-radius: 0 0 20px 20px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         margin-bottom: 2rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        width: 100%;
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255,255,255,0.3);
     }
     
-    /* Linha do nome do usuário */
-    .linha-usuario {
-        text-align: center;
-        margin-bottom: 0.8rem;
+    .usuario-cabecalho {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-size: 1.2rem;
+        color: #2d3748;
     }
     
-    .usuario-nome {
-        background: rgba(255,255,255,0.15);
+    .avatar {
+        background: linear-gradient(135deg, #667eea, #764ba2);
         color: white;
-        padding: 0.4rem 2rem;
-        border-radius: 40px;
-        font-weight: 600;
-        font-size: 1rem;
-        border: 1px solid rgba(255,255,255,0.3);
-        display: inline-block;
-        backdrop-filter: blur(5px);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    /* Container dos botões */
-    .botoes-container {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 0.5rem;
-        flex-wrap: wrap;
+        font-weight: bold;
+        font-size: 1.2rem;
+        box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
     }
     
-    /* Estilo para os botões do Streamlit */
-    .botoes-container .stButton button {
-        background: rgba(255,255,255,0.15) !important;
-        color: white !important;
-        border: 1px solid rgba(255,255,255,0.3) !important;
-        padding: 0.4rem 1.2rem !important;
-        border-radius: 40px !important;
+    /* ===== MENU DE NAVEGAÇÃO ===== */
+    .menu-navegacao {
+        background: white;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+        display: inline-flex;
+        gap: 0.3rem;
+        margin-bottom: 2rem;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .menu-navegacao .stButton button {
+        background: transparent !important;
+        color: #4a5568 !important;
+        border: none !important;
+        padding: 0.5rem 1.2rem !important;
+        border-radius: 30px !important;
         font-weight: 500 !important;
         font-size: 0.95rem !important;
         transition: all 0.2s ease !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
-        backdrop-filter: blur(5px) !important;
+        box-shadow: none !important;
         min-width: unset !important;
-        height: auto !important;
-        line-height: 1.4 !important;
-        margin: 0 !important;
     }
     
-    .botoes-container .stButton button:hover {
-        background: rgba(255,255,255,0.25) !important;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
+    .menu-navegacao .stButton button:hover {
+        background: #f7fafc !important;
+        color: #667eea !important;
+    }
+    
+    .menu-navegacao .stButton button:active,
+    .menu-navegacao .stButton button:focus {
+        background: #667eea !important;
+        color: white !important;
     }
     
     /* Botão ativo */
@@ -200,62 +212,194 @@ st.markdown("""
     button[key="menu_pdv"],
     button[key="menu_relatorios"],
     button[key="menu_config"] {
-        background: white !important;
-        color: #667eea !important;
-        font-weight: 700 !important;
+        background: #667eea !important;
+        color: white !important;
+        font-weight: 600 !important;
     }
     
     /* Botão sair */
     button[key="menu_sair"] {
-        background: rgba(220, 53, 69, 0.8) !important;
+        background: #f56565 !important;
+        color: white !important;
     }
     
     button[key="menu_sair"]:hover {
-        background: rgba(220, 53, 69, 1) !important;
+        background: #c53030 !important;
     }
     
     /* Botão atualizar */
     button[key="menu_atualizar"] {
-        background: linear-gradient(135deg, #28a745, #20c997) !important;
-        font-weight: 700 !important;
+        background: #48bb78 !important;
+        color: white !important;
     }
     
+    button[key="menu_atualizar"]:hover {
+        background: #38a169 !important;
+    }
+    
+    /* ===== CARDS E CONTEÚDO ===== */
+    .card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        border: 1px solid #e2e8f0;
+        transition: transform 0.2s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    }
+    
+    .metric-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        text-align: center;
+        border-left: 4px solid #667eea;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+    
+    .metric-value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #2d3748;
+        margin: 0.5rem 0;
+    }
+    
+    .metric-label {
+        color: #718096;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    /* ===== PRODUTO CARD ===== */
+    .produto-card {
+        background: white;
+        padding: 1rem;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    
+    .produto-card:hover {
+        border-color: #667eea;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+    }
+    
+    .produto-nome {
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+    }
+    
+    .produto-preco {
+        color: #667eea;
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+    
+    .produto-estoque {
+        color: #718096;
+        font-size: 0.9rem;
+    }
+    
+    /* ===== CARRINHO ITEM ===== */
+    .carrinho-item {
+        background: #f7fafc;
+        padding: 0.8rem;
+        border-radius: 8px;
+        margin: 0.5rem 0;
+        border-left: 3px solid #667eea;
+    }
+    
+    /* ===== BOTÕES ===== */
+    .stButton button {
+        border-radius: 8px !important;
+        font-weight: 500 !important;
+        transition: all 0.2s ease !important;
+    }
+    
+    .stButton button[type="primary"] {
+        background: linear-gradient(135deg, #667eea, #764ba2) !important;
+        color: white !important;
+        border: none !important;
+    }
+    
+    .stButton button[type="primary"]:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(102, 126, 234, 0.3) !important;
+    }
+    
+    /* ===== RESPONSIVIDADE ===== */
     @media (max-width: 768px) {
-        .barra-superior {
+        .menu-navegacao {
+            border-radius: 15px;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+        
+        .cabecalho {
             padding: 1rem;
         }
-        .botoes-container {
-            gap: 0.3rem;
-        }
-        .botoes-container .stButton button {
-            padding: 0.3rem 0.8rem !important;
-            font-size: 0.85rem !important;
-        }
     }
     
-    /* Espaço para o conteúdo */
+    /* ===== ESPAÇAMENTO ===== */
     .conteudo {
-        padding: 1rem 0;
+        padding: 0 2rem;
+    }
+    
+    h1, h2, h3 {
+        color: #2d3748;
+    }
+    
+    /* ===== TABELAS ===== */
+    .dataframe {
+        border: none !important;
+        border-radius: 10px !important;
+        overflow: hidden !important;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05) !important;
+    }
+    
+    .dataframe th {
+        background: #f7fafc !important;
+        color: #4a5568 !important;
+        font-weight: 600 !important;
+        padding: 1rem !important;
+    }
+    
+    .dataframe td {
+        padding: 0.8rem 1rem !important;
+        border-bottom: 1px solid #e2e8f0 !important;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# ========== MENU SUPERIOR COM BOTÕES DO STREAMLIT ==========
+# ========== CABEÇALHO COM NOME DO USUÁRIO ==========
 if st.session_state.autenticado:
     usuario_logado = st.session_state.username
     pagina_atual = st.session_state.pagina_atual
     
-    # Barra superior
-    st.markdown('<div class="barra-superior">', unsafe_allow_html=True)
+    # Inicial do usuário para o avatar
+    inicial = usuario_logado[0].upper() if usuario_logado else "U"
     
-    # Linha do nome do usuário
-    st.markdown(f'<div class="linha-usuario"><span class="usuario-nome">👤 {usuario_logado}</span></div>', unsafe_allow_html=True)
+    st.markdown(f"""
+    <div class="cabecalho">
+        <div class="usuario-cabecalho">
+            <div class="avatar">{inicial}</div>
+            <span>Olá, <strong>{usuario_logado}</strong>! Bem-vindo ao sistema</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+# ========== MENU DE NAVEGAÇÃO ==========
+if st.session_state.autenticado:
+    st.markdown('<div class="menu-navegacao">', unsafe_allow_html=True)
     
-    # Linha dos botões
-    st.markdown('<div class="botoes-container">', unsafe_allow_html=True)
-    
-    # Criando colunas para os botões
-    col1, col2, col3, col4, col5, col6, col7 = st.columns(7)
+    col1, col2, col3, col4, col5, col6, col7, col8 = st.columns(8)
     
     with col1:
         if st.button("🏠 Dashboard", key="menu_dashboard", use_container_width=True):
@@ -295,17 +439,19 @@ if st.session_state.autenticado:
         if st.button("🔄", key="menu_atualizar", use_container_width=True):
             st.rerun()
     
-    st.markdown('</div>', unsafe_allow_html=True)  # Fecha botoes-container
-    st.markdown('</div>', unsafe_allow_html=True)  # Fecha barra-superior
+    with col8:
+        st.empty()
+    
+    st.markdown('</div>', unsafe_allow_html=True)
     
     # CSS dinâmico para destacar o botão ativo
     if pagina_atual == "Dashboard":
         st.markdown("""
         <style>
             button[key="menu_dashboard"] {
-                background: white !important;
-                color: #667eea !important;
-                font-weight: 700 !important;
+                background: #667eea !important;
+                color: white !important;
+                font-weight: 600 !important;
             }
         </style>
         """, unsafe_allow_html=True)
@@ -313,9 +459,9 @@ if st.session_state.autenticado:
         st.markdown("""
         <style>
             button[key="menu_estoque"] {
-                background: white !important;
-                color: #667eea !important;
-                font-weight: 700 !important;
+                background: #667eea !important;
+                color: white !important;
+                font-weight: 600 !important;
             }
         </style>
         """, unsafe_allow_html=True)
@@ -323,9 +469,9 @@ if st.session_state.autenticado:
         st.markdown("""
         <style>
             button[key="menu_pdv"] {
-                background: white !important;
-                color: #667eea !important;
-                font-weight: 700 !important;
+                background: #667eea !important;
+                color: white !important;
+                font-weight: 600 !important;
             }
         </style>
         """, unsafe_allow_html=True)
@@ -333,9 +479,9 @@ if st.session_state.autenticado:
         st.markdown("""
         <style>
             button[key="menu_relatorios"] {
-                background: white !important;
-                color: #667eea !important;
-                font-weight: 700 !important;
+                background: #667eea !important;
+                color: white !important;
+                font-weight: 600 !important;
             }
         </style>
         """, unsafe_allow_html=True)
@@ -343,9 +489,9 @@ if st.session_state.autenticado:
         st.markdown("""
         <style>
             button[key="menu_config"] {
-                background: white !important;
-                color: #667eea !important;
-                font-weight: 700 !important;
+                background: #667eea !important;
+                color: white !important;
+                font-weight: 600 !important;
             }
         </style>
         """, unsafe_allow_html=True)
@@ -355,32 +501,58 @@ st.markdown('<div class="conteudo">', unsafe_allow_html=True)
 
 # ===== DASHBOARD =====
 if st.session_state.pagina_atual == "Dashboard":
-    st.header("📊 Dashboard")
+    st.title("📊 Dashboard")
     
     produtos = banco.listar_produtos(st.session_state.user_id)
     
     if not produtos.empty:
         col1, col2, col3 = st.columns(3)
+        
         with col1:
-            st.metric("Total de Produtos", len(produtos))
+            st.markdown("""
+            <div class="metric-card">
+                <div class="metric-label">Total de Produtos</div>
+                <div class="metric-value">{}</div>
+            </div>
+            """.format(len(produtos)), unsafe_allow_html=True)
+        
         with col2:
-            total_estoque = int(produtos['quantidade'].sum())
-            st.metric("Itens em Estoque", total_estoque)
+            st.markdown("""
+            <div class="metric-card">
+                <div class="metric-label">Itens em Estoque</div>
+                <div class="metric-value">{}</div>
+            </div>
+            """.format(int(produtos['quantidade'].sum())), unsafe_allow_html=True)
+        
         with col3:
             valor_total = (produtos['quantidade'] * produtos['preco']).sum()
-            st.metric("Valor em Estoque", f"R$ {valor_total:.2f}")
+            st.markdown("""
+            <div class="metric-card">
+                <div class="metric-label">Valor em Estoque</div>
+                <div class="metric-value">R$ {:,.2f}</div>
+            </div>
+            """.format(valor_total), unsafe_allow_html=True)
         
         if 'categoria' in produtos.columns:
+            st.subheader("Distribuição do Estoque")
             fig = px.pie(produtos, names='categoria', values='quantidade',
-                        title="Distribuição do Estoque por Categoria",
-                        color_discrete_sequence=px.colors.qualitative.Set3)
+                        title="Por Categoria",
+                        color_discrete_sequence=['#667eea', '#764ba2', '#48bb78', '#f56565', '#ed8936'])
+            fig.update_layout(
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
+                font={'color': '#2d3748'}
+            )
             st.plotly_chart(fig, use_container_width=True)
     else:
         st.info("📭 Nenhum produto cadastrado ainda. Acesse 'Estoque' para começar!")
 
+# ===== RESTO DO CÓDIGO PERMANECE IGUAL =====
+# (mantenha todo o resto do código das páginas exatamente como estava)
+
 # ===== ESTOQUE =====
 elif st.session_state.pagina_atual == "Estoque":
-    st.header("📦 Controle de Estoque")
+    st.title("📦 Controle de Estoque")
     
     aba1, aba2, aba3 = st.tabs(["📝 Cadastrar", "📋 Listar", "✏️ Editar"])
     
@@ -463,7 +635,12 @@ elif st.session_state.pagina_atual == "Estoque":
                 fig = px.bar(estoque_categoria, x='categoria', y='quantidade', 
                            title="Quantidade em Estoque por Categoria", 
                            color='categoria',
-                           color_discrete_sequence=px.colors.qualitative.Set3)
+                           color_discrete_sequence=['#667eea', '#764ba2', '#48bb78'])
+                fig.update_layout(
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    font={'color': '#2d3748'}
+                )
                 st.plotly_chart(fig, use_container_width=True)
         else:
             st.info("📭 Nenhum produto cadastrado ainda.")
@@ -533,7 +710,7 @@ elif st.session_state.pagina_atual == "Estoque":
 
 # ===== PDV =====
 elif st.session_state.pagina_atual == "PDV":
-    st.header("💵 Ponto de Venda")
+    st.title("💵 Ponto de Venda")
     
     col1, col2 = st.columns([2, 1])
     
@@ -551,14 +728,13 @@ elif st.session_state.pagina_atual == "PDV":
                     with st.container():
                         st.markdown(f"""
                         <div class="produto-card">
-                            <b>{produto['nome']}</b><br>
-                            Cód: {produto['codigo']}<br>
-                            R$ {produto['preco']:.2f}<br>
-                            Estoque: {produto['quantidade']}
+                            <div class="produto-nome">{produto['nome']}</div>
+                            <div class="produto-preco">R$ {produto['preco']:.2f}</div>
+                            <div class="produto-estoque">Estoque: {produto['quantidade']}</div>
                         </div>
                         """, unsafe_allow_html=True)
                         
-                        if st.button(f"➕ Adicionar", key=f"btn_{produto['id']}"):
+                        if st.button(f"➕ Adicionar", key=f"btn_{produto['id']}", use_container_width=True):
                             if 'carrinho' not in st.session_state:
                                 st.session_state.carrinho = []
                             
@@ -591,8 +767,8 @@ elif st.session_state.pagina_atual == "PDV":
                 with st.container():
                     st.markdown(f"""
                     <div class="carrinho-item">
-                        <b>{item['nome']}</b><br>
-                        {item['quantidade']} x R$ {item['preco']:.2f} = R$ {item['subtotal']:.2f}
+                        <div><strong>{item['nome']}</strong></div>
+                        <div>{item['quantidade']} x R$ {item['preco']:.2f} = R$ {item['subtotal']:.2f}</div>
                     </div>
                     """, unsafe_allow_html=True)
                     
@@ -613,7 +789,7 @@ elif st.session_state.pagina_atual == "PDV":
                     st.divider()
             
             st.markdown(f"""
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 10px; text-align: center; margin: 15px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem; border-radius: 10px; text-align: center; margin: 1rem 0;">
                 <h3 style="margin:0;">TOTAL: R$ {total:.2f}</h3>
             </div>
             """, unsafe_allow_html=True)
@@ -639,7 +815,7 @@ elif st.session_state.pagina_atual == "PDV":
 
 # ===== RELATÓRIOS =====
 elif st.session_state.pagina_atual == "Relatórios":
-    st.header("📊 Relatórios")
+    st.title("📊 Relatórios")
 
     tipo_relatorio = st.selectbox("Tipo de Relatório", ["Vendas", "Produtos"])
 
@@ -683,13 +859,21 @@ elif st.session_state.pagina_atual == "Relatórios":
                 
                 fig = px.line(vendas_por_dia, x='data', y='total', title="Vendas por Dia", 
                              markers=True, color_discrete_sequence=['#667eea'])
-                fig.update_layout(yaxis_title="Valor (R$)")
+                fig.update_layout(
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    font={'color': '#2d3748'}
+                )
                 st.plotly_chart(fig, use_container_width=True)
                 
                 if 'forma_pagamento' in vendas.columns:
                     fig_pag = px.pie(vendas, names='forma_pagamento', values='total', 
                                    title="Vendas por Forma de Pagamento",
-                                   color_discrete_sequence=px.colors.qualitative.Set3)
+                                   color_discrete_sequence=['#667eea', '#764ba2', '#48bb78', '#f56565', '#ed8936'])
+                    fig_pag.update_layout(
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        paper_bgcolor='rgba(0,0,0,0)'
+                    )
                     st.plotly_chart(fig_pag, use_container_width=True)
             else:
                 st.info("Nenhuma venda encontrada no período selecionado.")
@@ -713,13 +897,18 @@ elif st.session_state.pagina_atual == "Relatórios":
             
             fig = px.bar(produtos, x='nome', y='quantidade', title="Quantidade em Estoque", 
                         color='nome', color_discrete_sequence=px.colors.qualitative.Set3)
+            fig.update_layout(
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
+                font={'color': '#2d3748'}
+            )
             st.plotly_chart(fig, use_container_width=True)
         else:
             st.info("Nenhum produto cadastrado.")
 
 # ===== CONFIGURAÇÕES =====
 elif st.session_state.pagina_atual == "Configurações":
-    st.header("⚙️ Configurações")
+    st.title("⚙️ Configurações")
 
     with st.form("config_empresa"):
         st.subheader("Dados da Empresa")
