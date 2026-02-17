@@ -149,22 +149,17 @@ st.markdown("""
         max-width: 100% !important;
     }
     
-    /* ===== BARRA ROXA SUPERIOR ===== */
-    .barra-superior {
+    /* ===== CONTAINER ROXO ===== */
+    .topo-roxo {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 0.75rem 1.5rem;
+        padding: 0.8rem 1.5rem;
         border-radius: 0 0 15px 15px;
         margin-bottom: 2rem;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        gap: 2rem;
-        flex-wrap: wrap;
     }
     
-    /* Nome do usuário */
+    /* Estilo para o nome do usuário */
     .usuario-nome {
         background: rgba(255,255,255,0.15);
         color: white;
@@ -174,68 +169,57 @@ st.markdown("""
         font-size: 1rem;
         border: 1px solid rgba(255,255,255,0.3);
         white-space: nowrap;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        backdrop-filter: blur(5px);
-    }
-    
-    /* Container dos links do menu */
-    .menu-links {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-    }
-    
-    /* Estilo para os links do menu */
-    .menu-link {
-        background: rgba(255,255,255,0.1);
-        color: white;
-        border: 1px solid rgba(255,255,255,0.2);
-        padding: 0.4rem 1.2rem;
-        border-radius: 40px;
-        font-weight: 500;
-        font-size: 0.95rem;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        text-decoration: none;
         display: inline-block;
+        text-align: center;
+        width: 100%;
     }
     
-    .menu-link:hover {
-        background: rgba(255,255,255,0.2);
-        transform: translateY(-1px);
+    /* Estilo para os botões do menu */
+    div[data-testid="column"] .stButton button {
+        background: rgba(255,255,255,0.15) !important;
+        color: white !important;
+        border: 1px solid rgba(255,255,255,0.3) !important;
+        padding: 0.4rem 0.8rem !important;
+        border-radius: 40px !important;
+        font-weight: 600 !important;
+        font-size: 0.9rem !important;
+        transition: all 0.2s ease !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+        width: 100% !important;
+        margin: 0 !important;
     }
     
-    .menu-link.ativo {
-        background: white;
-        color: #667eea;
-        font-weight: 700;
+    div[data-testid="column"] .stButton button:hover {
+        background: rgba(255,255,255,0.25) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
     }
     
-    .menu-link.sair {
-        background: rgba(220, 53, 69, 0.8);
+    /* Botão ativo */
+    button[key="menu_dashboard"], 
+    button[key="menu_estoque"], 
+    button[key="menu_pdv"], 
+    button[key="menu_relatorios"], 
+    button[key="menu_config"] {
+        background: white !important;
+        color: #667eea !important;
+        font-weight: 700 !important;
+        border-color: white !important;
     }
     
-    .menu-link.sair:hover {
-        background: rgba(220, 53, 69, 1);
+    /* Botão sair */
+    button[key="menu_sair"] {
+        background: rgba(220, 53, 69, 0.8) !important;
     }
     
-    .menu-link.atualizar {
-        background: linear-gradient(135deg, #28a745, #20c997);
+    button[key="menu_sair"]:hover {
+        background: rgba(220, 53, 69, 1) !important;
     }
     
-    /* Responsividade */
-    @media (max-width: 768px) {
-        .barra-superior {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 1rem;
-        }
-        
-        .menu-links {
-            width: 100%;
-            justify-content: center;
-        }
+    /* Botão atualizar */
+    button[key="menu_atualizar"] {
+        background: linear-gradient(135deg, #28a745, #20c997) !important;
+        border: none !important;
     }
     
     /* Espaço para o conteúdo */
@@ -245,56 +229,117 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ========== PROCESSAR PARÂMETROS DA URL ==========
-if st.session_state.autenticado:
-    query_params = st.query_params
-    
-    if "pagina" in query_params:
-        pagina = query_params["pagina"]
-        if pagina in ["Dashboard", "Estoque", "PDV", "Relatórios", "Configurações"]:
-            st.session_state.pagina_atual = pagina
-            st.rerun()
-    
-    if "logout" in query_params:
-        st.session_state.autenticado = False
-        st.session_state.username = ""
-        st.session_state.user_id = None
-        st.session_state.pagina_atual = "Login"
-        st.session_state.carrinho = []
-        st.rerun()
-    
-    if "atualizar" in query_params:
-        st.rerun()
-
-# ========== MENU SUPERIOR COM LINKS HTML ==========
+# ========== MENU SUPERIOR COM BOTÕES DO STREAMLIT DENTRO DO CONTAINER ROXO ==========
 if st.session_state.autenticado:
     usuario_logado = st.session_state.username
     pagina_atual = st.session_state.pagina_atual
 
-    # Determinar classes ativas
-    dashboard_class = "menu-link ativo" if pagina_atual == "Dashboard" else "menu-link"
-    estoque_class = "menu-link ativo" if pagina_atual == "Estoque" else "menu-link"
-    pdv_class = "menu-link ativo" if pagina_atual == "PDV" else "menu-link"
-    relatorios_class = "menu-link ativo" if pagina_atual == "Relatórios" else "menu-link"
-    config_class = "menu-link ativo" if pagina_atual == "Configurações" else "menu-link"
+    # Container roxo
+    with st.container():
+        st.markdown('<div class="topo-roxo">', unsafe_allow_html=True)
+        
+        # Primeira linha: nome do usuário
+        col_usuario = st.columns([1, 6, 1])[1]
+        with col_usuario:
+            st.markdown(f'<div class="usuario-nome">👤 {usuario_logado}</div>', unsafe_allow_html=True)
+        
+        # Segunda linha: botões do menu
+        col1, col2, col3, col4, col5, col6, col7, col8 = st.columns(8)
+        
+        with col1:
+            if st.button("🏠", key="menu_dashboard", use_container_width=True):
+                st.session_state.pagina_atual = "Dashboard"
+                st.rerun()
+        
+        with col2:
+            if st.button("📦", key="menu_estoque", use_container_width=True):
+                st.session_state.pagina_atual = "Estoque"
+                st.rerun()
+        
+        with col3:
+            if st.button("💵", key="menu_pdv", use_container_width=True):
+                st.session_state.pagina_atual = "PDV"
+                st.rerun()
+        
+        with col4:
+            if st.button("📊", key="menu_relatorios", use_container_width=True):
+                st.session_state.pagina_atual = "Relatórios"
+                st.rerun()
+        
+        with col5:
+            if st.button("⚙️", key="menu_config", use_container_width=True):
+                st.session_state.pagina_atual = "Configurações"
+                st.rerun()
+        
+        with col6:
+            if st.button("🚪", key="menu_sair", use_container_width=True):
+                st.session_state.autenticado = False
+                st.session_state.username = ""
+                st.session_state.user_id = None
+                st.session_state.pagina_atual = "Login"
+                st.session_state.carrinho = []
+                st.rerun()
+        
+        with col7:
+            if st.button("🔄", key="menu_atualizar", use_container_width=True):
+                st.rerun()
+        
+        with col8:
+            st.empty()
+        
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    # HTML completo da barra superior com links
-    menu_html = f"""
-    <div class="barra-superior">
-        <span class="usuario-nome">👤 {usuario_logado}</span>
-        <div class="menu-links">
-            <a href="?pagina=Dashboard" class="{dashboard_class}">🏠 Dashboard</a>
-            <a href="?pagina=Estoque" class="{estoque_class}">📦 Estoque</a>
-            <a href="?pagina=PDV" class="{pdv_class}">💵 PDV</a>
-            <a href="?pagina=Relatórios" class="{relatorios_class}">📊 Relatórios</a>
-            <a href="?pagina=Configurações" class="{config_class}">⚙️ Config</a>
-            <a href="?logout=true" class="menu-link sair">🚪 Sair</a>
-            <a href="?atualizar=true" class="menu-link atualizar">🔄</a>
-        </div>
-    </div>
-    """
-
-    st.markdown(menu_html, unsafe_allow_html=True)
+    # CSS dinâmico para destacar o botão ativo
+    if pagina_atual == "Dashboard":
+        st.markdown("""
+        <style>
+            button[key="menu_dashboard"] {
+                background: white !important;
+                color: #667eea !important;
+                font-weight: 700 !important;
+            }
+        </style>
+        """, unsafe_allow_html=True)
+    elif pagina_atual == "Estoque":
+        st.markdown("""
+        <style>
+            button[key="menu_estoque"] {
+                background: white !important;
+                color: #667eea !important;
+                font-weight: 700 !important;
+            }
+        </style>
+        """, unsafe_allow_html=True)
+    elif pagina_atual == "PDV":
+        st.markdown("""
+        <style>
+            button[key="menu_pdv"] {
+                background: white !important;
+                color: #667eea !important;
+                font-weight: 700 !important;
+            }
+        </style>
+        """, unsafe_allow_html=True)
+    elif pagina_atual == "Relatórios":
+        st.markdown("""
+        <style>
+            button[key="menu_relatorios"] {
+                background: white !important;
+                color: #667eea !important;
+                font-weight: 700 !important;
+            }
+        </style>
+        """, unsafe_allow_html=True)
+    elif pagina_atual == "Configurações":
+        st.markdown("""
+        <style>
+            button[key="menu_config"] {
+                background: white !important;
+                color: #667eea !important;
+                font-weight: 700 !important;
+            }
+        </style>
+        """, unsafe_allow_html=True)
 
 # ========== CONTEÚDO DAS PÁGINAS ==========
 st.markdown('<div class="conteudo">', unsafe_allow_html=True)
