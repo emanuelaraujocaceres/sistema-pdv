@@ -119,7 +119,7 @@ if not st.session_state.autenticado:
     
     st.stop()
 
-# ========== CSS PERSONALIZADO MODERNO ==========
+# ========== CSS PERSONALIZADO - TONS DE AZUL ==========
 st.markdown("""
 <style>
     /* ===== REMOVER ELEMENTOS PADRÃO ===== */
@@ -132,20 +132,18 @@ st.markdown("""
     .main > div {padding-top: 0 !important;}
     .block-container {padding-top: 0 !important; max-width: 100% !important;}
     
-    /* ===== ESTILOS GLOBAIS ===== */
+    /* ===== FUNDO GRADIENTE AZUL ===== */
     .stApp {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #0b2b5c 0%, #1a4b8c 50%, #2a6fba 100%);
     }
     
     /* ===== CABEÇALHO COM NOME DO USUÁRIO ===== */
     .cabecalho {
-        background: rgba(255, 255, 255, 0.95);
+        background: linear-gradient(135deg, #0b2b5c, #1a4b8c);
         padding: 1rem 2rem;
-        border-radius: 0 0 20px 20px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        margin-bottom: 2rem;
-        backdrop-filter: blur(10px);
-        border-bottom: 1px solid rgba(255,255,255,0.3);
+        margin: -1rem -1rem 1rem -1rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        border-bottom: 2px solid #2a6fba;
     }
     
     .usuario-cabecalho {
@@ -153,38 +151,40 @@ st.markdown("""
         align-items: center;
         gap: 1rem;
         font-size: 1.2rem;
-        color: #2d3748;
+        color: white;
     }
     
     .avatar {
-        background: linear-gradient(135deg, #667eea, #764ba2);
+        background: linear-gradient(135deg, #2a6fba, #3a7fd5);
         color: white;
-        width: 40px;
-        height: 40px;
+        width: 45px;
+        height: 45px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: bold;
-        font-size: 1.2rem;
-        box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+        font-size: 1.3rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        border: 2px solid rgba(255,255,255,0.3);
     }
     
     /* ===== MENU DE NAVEGAÇÃO ===== */
     .menu-navegacao {
-        background: white;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
         padding: 0.5rem 1rem;
         border-radius: 50px;
-        box-shadow: 0 2px 15px rgba(0,0,0,0.05);
         display: inline-flex;
         gap: 0.3rem;
-        margin-bottom: 2rem;
-        border: 1px solid #e2e8f0;
+        margin: 1rem 0 2rem 0;
+        border: 1px solid rgba(255,255,255,0.2);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
     
     .menu-navegacao .stButton button {
         background: transparent !important;
-        color: #4a5568 !important;
+        color: white !important;
         border: none !important;
         padding: 0.5rem 1.2rem !important;
         border-radius: 30px !important;
@@ -196,45 +196,40 @@ st.markdown("""
     }
     
     .menu-navegacao .stButton button:hover {
-        background: #f7fafc !important;
-        color: #667eea !important;
-    }
-    
-    .menu-navegacao .stButton button:active,
-    .menu-navegacao .stButton button:focus {
-        background: #667eea !important;
-        color: white !important;
+        background: rgba(255, 255, 255, 0.15) !important;
+        transform: translateY(-2px);
     }
     
     /* Botão ativo */
-    button[key="menu_dashboard"],
-    button[key="menu_estoque"],
-    button[key="menu_pdv"],
-    button[key="menu_relatorios"],
-    button[key="menu_config"] {
-        background: #667eea !important;
-        color: white !important;
+    button[key="menu_dashboard"]:not([type="secondary"]),
+    button[key="menu_estoque"]:not([type="secondary"]),
+    button[key="menu_pdv"]:not([type="secondary"]),
+    button[key="menu_relatorios"]:not([type="secondary"]),
+    button[key="menu_config"]:not([type="secondary"]) {
+        background: white !important;
+        color: #0b2b5c !important;
         font-weight: 600 !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important;
     }
     
     /* Botão sair */
     button[key="menu_sair"] {
-        background: #f56565 !important;
+        background: rgba(220, 53, 69, 0.8) !important;
         color: white !important;
     }
     
     button[key="menu_sair"]:hover {
-        background: #c53030 !important;
+        background: rgba(220, 53, 69, 1) !important;
     }
     
     /* Botão atualizar */
     button[key="menu_atualizar"] {
-        background: #48bb78 !important;
+        background: rgba(72, 187, 120, 0.8) !important;
         color: white !important;
     }
     
     button[key="menu_atualizar"]:hover {
-        background: #38a169 !important;
+        background: rgba(72, 187, 120, 1) !important;
     }
     
     /* ===== CARDS E CONTEÚDO ===== */
@@ -242,14 +237,9 @@ st.markdown("""
         background: white;
         padding: 1.5rem;
         border-radius: 15px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        border: 1px solid #e2e8f0;
-        transition: transform 0.2s ease;
-    }
-    
-    .card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        margin-bottom: 1rem;
     }
     
     .metric-card {
@@ -257,19 +247,20 @@ st.markdown("""
         padding: 1.5rem;
         border-radius: 15px;
         text-align: center;
-        border-left: 4px solid #667eea;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        border-left: 4px solid #2a6fba;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin-bottom: 1rem;
     }
     
     .metric-value {
         font-size: 2rem;
         font-weight: bold;
-        color: #2d3748;
+        color: #0b2b5c;
         margin: 0.5rem 0;
     }
     
     .metric-label {
-        color: #718096;
+        color: #4a5568;
         font-size: 0.9rem;
         text-transform: uppercase;
         letter-spacing: 1px;
@@ -283,21 +274,23 @@ st.markdown("""
         border: 1px solid #e2e8f0;
         transition: all 0.2s ease;
         cursor: pointer;
+        margin-bottom: 0.5rem;
     }
     
     .produto-card:hover {
-        border-color: #667eea;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        border-color: #2a6fba;
+        box-shadow: 0 4px 12px rgba(42, 111, 186, 0.15);
+        transform: translateY(-2px);
     }
     
     .produto-nome {
         font-weight: 600;
-        color: #2d3748;
+        color: #0b2b5c;
         margin-bottom: 0.5rem;
     }
     
     .produto-preco {
-        color: #667eea;
+        color: #2a6fba;
         font-weight: bold;
         font-size: 1.2rem;
     }
@@ -309,11 +302,11 @@ st.markdown("""
     
     /* ===== CARRINHO ITEM ===== */
     .carrinho-item {
-        background: #f7fafc;
+        background: #f8fafc;
         padding: 0.8rem;
         border-radius: 8px;
         margin: 0.5rem 0;
-        border-left: 3px solid #667eea;
+        border-left: 3px solid #2a6fba;
     }
     
     /* ===== BOTÕES ===== */
@@ -324,14 +317,70 @@ st.markdown("""
     }
     
     .stButton button[type="primary"] {
-        background: linear-gradient(135deg, #667eea, #764ba2) !important;
+        background: linear-gradient(135deg, #0b2b5c, #1a4b8c) !important;
         color: white !important;
         border: none !important;
     }
     
     .stButton button[type="primary"]:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 15px rgba(102, 126, 234, 0.3) !important;
+        box-shadow: 0 8px 15px rgba(11, 43, 92, 0.3) !important;
+    }
+    
+    /* ===== TÍTULOS ===== */
+    h1, h2, h3 {
+        color: white !important;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    /* ===== TABELAS ===== */
+    .dataframe {
+        border: none !important;
+        border-radius: 10px !important;
+        overflow: hidden !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+    }
+    
+    .dataframe th {
+        background: linear-gradient(135deg, #0b2b5c, #1a4b8c) !important;
+        color: white !important;
+        font-weight: 600 !important;
+        padding: 1rem !important;
+    }
+    
+    .dataframe td {
+        background: white !important;
+        padding: 0.8rem 1rem !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+    }
+    
+    /* ===== TABS ===== */
+    .stTabs [data-baseweb="tab-list"] {
+        background: rgba(255,255,255,0.1);
+        border-radius: 40px;
+        padding: 0.3rem;
+        margin-bottom: 1rem;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        color: white !important;
+        border-radius: 30px !important;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background: white !important;
+        color: #0b2b5c !important;
+    }
+    
+    /* ===== INPUTS ===== */
+    .stTextInput input, .stTextArea textarea, .stNumberInput input, .stSelectbox select {
+        border-radius: 8px !important;
+        border: 1px solid #e2e8f0 !important;
+    }
+    
+    /* ===== ESPAÇAMENTO ===== */
+    .conteudo {
+        padding: 0 2rem;
     }
     
     /* ===== RESPONSIVIDADE ===== */
@@ -345,35 +394,10 @@ st.markdown("""
         .cabecalho {
             padding: 1rem;
         }
-    }
-    
-    /* ===== ESPAÇAMENTO ===== */
-    .conteudo {
-        padding: 0 2rem;
-    }
-    
-    h1, h2, h3 {
-        color: #2d3748;
-    }
-    
-    /* ===== TABELAS ===== */
-    .dataframe {
-        border: none !important;
-        border-radius: 10px !important;
-        overflow: hidden !important;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05) !important;
-    }
-    
-    .dataframe th {
-        background: #f7fafc !important;
-        color: #4a5568 !important;
-        font-weight: 600 !important;
-        padding: 1rem !important;
-    }
-    
-    .dataframe td {
-        padding: 0.8rem 1rem !important;
-        border-bottom: 1px solid #e2e8f0 !important;
+        
+        .conteudo {
+            padding: 0 1rem;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -399,7 +423,7 @@ if st.session_state.autenticado:
 if st.session_state.autenticado:
     st.markdown('<div class="menu-navegacao">', unsafe_allow_html=True)
     
-    col1, col2, col3, col4, col5, col6, col7, col8 = st.columns(8)
+    col1, col2, col3, col4, col5, col6, col7 = st.columns(7)
     
     with col1:
         if st.button("🏠 Dashboard", key="menu_dashboard", use_container_width=True):
@@ -439,9 +463,6 @@ if st.session_state.autenticado:
         if st.button("🔄", key="menu_atualizar", use_container_width=True):
             st.rerun()
     
-    with col8:
-        st.empty()
-    
     st.markdown('</div>', unsafe_allow_html=True)
     
     # CSS dinâmico para destacar o botão ativo
@@ -449,8 +470,8 @@ if st.session_state.autenticado:
         st.markdown("""
         <style>
             button[key="menu_dashboard"] {
-                background: #667eea !important;
-                color: white !important;
+                background: white !important;
+                color: #0b2b5c !important;
                 font-weight: 600 !important;
             }
         </style>
@@ -459,8 +480,8 @@ if st.session_state.autenticado:
         st.markdown("""
         <style>
             button[key="menu_estoque"] {
-                background: #667eea !important;
-                color: white !important;
+                background: white !important;
+                color: #0b2b5c !important;
                 font-weight: 600 !important;
             }
         </style>
@@ -469,8 +490,8 @@ if st.session_state.autenticado:
         st.markdown("""
         <style>
             button[key="menu_pdv"] {
-                background: #667eea !important;
-                color: white !important;
+                background: white !important;
+                color: #0b2b5c !important;
                 font-weight: 600 !important;
             }
         </style>
@@ -479,8 +500,8 @@ if st.session_state.autenticado:
         st.markdown("""
         <style>
             button[key="menu_relatorios"] {
-                background: #667eea !important;
-                color: white !important;
+                background: white !important;
+                color: #0b2b5c !important;
                 font-weight: 600 !important;
             }
         </style>
@@ -489,8 +510,8 @@ if st.session_state.autenticado:
         st.markdown("""
         <style>
             button[key="menu_config"] {
-                background: #667eea !important;
-                color: white !important;
+                background: white !important;
+                color: #0b2b5c !important;
                 font-weight: 600 !important;
             }
         </style>
@@ -537,18 +558,18 @@ if st.session_state.pagina_atual == "Dashboard":
             st.subheader("Distribuição do Estoque")
             fig = px.pie(produtos, names='categoria', values='quantidade',
                         title="Por Categoria",
-                        color_discrete_sequence=['#667eea', '#764ba2', '#48bb78', '#f56565', '#ed8936'])
+                        color_discrete_sequence=['#0b2b5c', '#1a4b8c', '#2a6fba', '#3a7fd5', '#4a8fe5'])
             fig.update_layout(
                 plot_bgcolor='rgba(0,0,0,0)',
                 paper_bgcolor='rgba(0,0,0,0)',
-                font={'color': '#2d3748'}
+                font={'color': 'white', 'size': 14}
             )
             st.plotly_chart(fig, use_container_width=True)
     else:
         st.info("📭 Nenhum produto cadastrado ainda. Acesse 'Estoque' para começar!")
 
 # ===== RESTO DO CÓDIGO PERMANECE IGUAL =====
-# (mantenha todo o resto do código das páginas exatamente como estava)
+# (mantenha todo o resto do código das páginas exatamente como estava nas versões anteriores funcionais)
 
 # ===== ESTOQUE =====
 elif st.session_state.pagina_atual == "Estoque":
@@ -635,11 +656,11 @@ elif st.session_state.pagina_atual == "Estoque":
                 fig = px.bar(estoque_categoria, x='categoria', y='quantidade', 
                            title="Quantidade em Estoque por Categoria", 
                            color='categoria',
-                           color_discrete_sequence=['#667eea', '#764ba2', '#48bb78'])
+                           color_discrete_sequence=['#0b2b5c', '#1a4b8c', '#2a6fba'])
                 fig.update_layout(
                     plot_bgcolor='rgba(0,0,0,0)',
                     paper_bgcolor='rgba(0,0,0,0)',
-                    font={'color': '#2d3748'}
+                    font={'color': 'white', 'size': 14}
                 )
                 st.plotly_chart(fig, use_container_width=True)
         else:
@@ -789,7 +810,7 @@ elif st.session_state.pagina_atual == "PDV":
                     st.divider()
             
             st.markdown(f"""
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem; border-radius: 10px; text-align: center; margin: 1rem 0;">
+            <div style="background: linear-gradient(135deg, #0b2b5c, #1a4b8c); color: white; padding: 1.5rem; border-radius: 10px; text-align: center; margin: 1rem 0; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
                 <h3 style="margin:0;">TOTAL: R$ {total:.2f}</h3>
             </div>
             """, unsafe_allow_html=True)
@@ -858,21 +879,22 @@ elif st.session_state.pagina_atual == "Relatórios":
                 vendas_por_dia = vendas.groupby('data')['total'].sum().reset_index()
                 
                 fig = px.line(vendas_por_dia, x='data', y='total', title="Vendas por Dia", 
-                             markers=True, color_discrete_sequence=['#667eea'])
+                             markers=True, color_discrete_sequence=['#2a6fba'])
                 fig.update_layout(
                     plot_bgcolor='rgba(0,0,0,0)',
                     paper_bgcolor='rgba(0,0,0,0)',
-                    font={'color': '#2d3748'}
+                    font={'color': 'white', 'size': 14}
                 )
                 st.plotly_chart(fig, use_container_width=True)
                 
                 if 'forma_pagamento' in vendas.columns:
                     fig_pag = px.pie(vendas, names='forma_pagamento', values='total', 
                                    title="Vendas por Forma de Pagamento",
-                                   color_discrete_sequence=['#667eea', '#764ba2', '#48bb78', '#f56565', '#ed8936'])
+                                   color_discrete_sequence=['#0b2b5c', '#1a4b8c', '#2a6fba', '#3a7fd5', '#4a8fe5'])
                     fig_pag.update_layout(
                         plot_bgcolor='rgba(0,0,0,0)',
-                        paper_bgcolor='rgba(0,0,0,0)'
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        font={'color': 'white', 'size': 14}
                     )
                     st.plotly_chart(fig_pag, use_container_width=True)
             else:
@@ -896,11 +918,11 @@ elif st.session_state.pagina_atual == "Relatórios":
             st.dataframe(df_estoque, use_container_width=True, hide_index=True)
             
             fig = px.bar(produtos, x='nome', y='quantidade', title="Quantidade em Estoque", 
-                        color='nome', color_discrete_sequence=px.colors.qualitative.Set3)
+                        color='nome', color_discrete_sequence=['#0b2b5c', '#1a4b8c', '#2a6fba', '#3a7fd5', '#4a8fe5'])
             fig.update_layout(
                 plot_bgcolor='rgba(0,0,0,0)',
                 paper_bgcolor='rgba(0,0,0,0)',
-                font={'color': '#2d3748'}
+                font={'color': 'white', 'size': 14}
             )
             st.plotly_chart(fig, use_container_width=True)
         else:
