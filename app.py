@@ -198,6 +198,8 @@ st.markdown("""
         text-decoration: none;
         display: inline-block;
         white-space: nowrap;
+        border: none;
+        font-family: inherit;
     }
     
     .btn-menu:hover {
@@ -241,65 +243,103 @@ st.markdown("""
         padding: 1rem 0;
     }
 </style>
+
+<script>
+    // Função para navegação sem recarregar a página
+    function navegar(pagina) {
+        // Criar um formulário oculto para enviar a requisição
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.style.display = 'none';
+        
+        // Adicionar campo com a página destino
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'navegar';
+        input.value = pagina;
+        form.appendChild(input);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+    
+    // Função para logout
+    function logout() {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.style.display = 'none';
+        
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'logout';
+        input.value = 'true';
+        form.appendChild(input);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+    
+    // Função para atualizar
+    function atualizar() {
+        location.reload();
+    }
+</script>
 """, unsafe_allow_html=True)
 
-# ========== MENU SUPERIOR INTEGRADO COM HTML ==========
-usuario_logado = st.session_state.username if st.session_state.autenticado else "Usuário"
-pagina_atual = st.session_state.pagina_atual
-
-# Determinar qual botão está ativo
-dashboard_active = "ativo" if pagina_atual == "Dashboard" else ""
-estoque_active = "ativo" if pagina_atual == "Estoque" else ""
-pdv_active = "ativo" if pagina_atual == "PDV" else ""
-relatorios_active = "ativo" if pagina_atual == "Relatórios" else ""
-config_active = "ativo" if pagina_atual == "Configurações" else ""
-
-# HTML do menu completo
-menu_html = f"""
-<div class="menu-integrado">
-    <div class="menu-container">
-        <span class="usuario-tag">👤 {usuario_logado}</span>
-        <div class="botoes-wrapper">
-            <a href="?pagina=Dashboard" class="btn-menu {dashboard_active}">🏠 Dashboard</a>
-            <a href="?pagina=Estoque" class="btn-menu {estoque_active}">📦 Estoque</a>
-            <a href="?pagina=PDV" class="btn-menu {pdv_active}">💵 PDV</a>
-            <a href="?pagina=Relatórios" class="btn-menu {relatorios_active}">📊 Relatórios</a>
-            <a href="?pagina=Configurações" class="btn-menu {config_active}">⚙️ Config</a>
-            <a href="?logout=true" class="btn-menu sair">🚪 Sair</a>
-            <a href="?atualizar=true" class="btn-menu atualizar">🔄 Atualizar</a>
-        </div>
-    </div>
-</div>
-"""
-
-st.markdown(menu_html, unsafe_allow_html=True)
-
-# ========== PROCESSAR PARÂMETROS DA URL ==========
-query_params = st.query_params
-
-if "pagina" in query_params:
-    pagina = query_params["pagina"]
-    if pagina in ["Dashboard", "Estoque", "PDV", "Relatórios", "Configurações"]:
-        if st.session_state.pagina_atual != pagina:
-            st.session_state.pagina_atual = pagina
+# ========== PROCESSAR REQUISIÇÕES POST ==========
+if st.session_state.autenticado:
+    if st.query_params:
+        if "navegar" in st.query_params:
+            pagina = st.query_params["navegar"]
+            if pagina in ["Dashboard", "Estoque", "PDV", "Relatórios", "Configurações"]:
+                st.session_state.pagina_atual = pagina
+                st.rerun()
+        
+        if "logout" in st.query_params:
+            st.session_state.autenticado = False
+            st.session_state.username = ""
+            st.session_state.user_id = None
+            st.session_state.pagina_atual = "Login"
+            st.session_state.carrinho = []
             st.rerun()
 
-if "logout" in query_params:
-    st.session_state.autenticado = False
-    st.session_state.username = ""
-    st.session_state.user_id = None
-    st.session_state.pagina_atual = "Login"
-    st.session_state.carrinho = []
-    st.rerun()
+# ========== MENU SUPERIOR INTEGRADO COM JAVASCRIPT ==========
+if st.session_state.autenticado:
+    usuario_logado = st.session_state.username
+    pagina_atual = st.session_state.pagina_atual
 
-if "atualizar" in query_params:
-    st.rerun()
+    # Determinar qual botão está ativo
+    dashboard_active = "ativo" if pagina_atual == "Dashboard" else ""
+    estoque_active = "ativo" if pagina_atual == "Estoque" else ""
+    pdv_active = "ativo" if pagina_atual == "PDV" else ""
+    relatorios_active = "ativo" if pagina_atual == "Relatórios" else ""
+    config_active = "ativo" if pagina_atual == "Configurações" else ""
+
+    # HTML do menu com chamadas JavaScript
+    menu_html = f"""
+    <div class="menu-integrado">
+        <div class="menu-container">
+            <span class="usuario-tag">👤 {usuario_logado}</span>
+            <div class="botoes-wrapper">
+                <button onclick="navegar('Dashboard')" class="btn-menu {dashboard_active}">🏠 Dashboard</button>
+                <button onclick="navegar('Estoque')" class="btn-menu {estoque_active}">📦 Estoque</button>
+                <button onclick="navegar('PDV')" class="btn-menu {pdv_active}">💵 PDV</button>
+                <button onclick="navegar('Relatórios')" class="btn-menu {relatorios_active}">📊 Relatórios</button>
+                <button onclick="navegar('Configurações')" class="btn-menu {config_active}">⚙️ Config</button>
+                <button onclick="logout()" class="btn-menu sair">🚪 Sair</button>
+                <button onclick="atualizar()" class="btn-menu atualizar">🔄 Atualizar</button>
+            </div>
+        </div>
+    </div>
+    """
+
+    st.markdown(menu_html, unsafe_allow_html=True)
 
 # ========== CONTEÚDO DAS PÁGINAS ==========
 st.markdown('<div class="conteudo">', unsafe_allow_html=True)
 
 # ===== DASHBOARD =====
-if pagina_atual == "Dashboard":
+if st.session_state.pagina_atual == "Dashboard":
     st.header("📊 Dashboard")
     
     produtos = banco.listar_produtos(st.session_state.user_id)
@@ -324,7 +364,7 @@ if pagina_atual == "Dashboard":
         st.info("📭 Nenhum produto cadastrado ainda. Acesse 'Estoque' para começar!")
 
 # ===== ESTOQUE =====
-elif pagina_atual == "Estoque":
+elif st.session_state.pagina_atual == "Estoque":
     st.header("📦 Controle de Estoque")
     
     aba1, aba2, aba3 = st.tabs(["📝 Cadastrar", "📋 Listar", "✏️ Editar"])
@@ -477,7 +517,7 @@ elif pagina_atual == "Estoque":
             st.info("📭 Nenhum produto cadastrado para editar.")
 
 # ===== PDV =====
-elif pagina_atual == "PDV":
+elif st.session_state.pagina_atual == "PDV":
     st.header("💵 Ponto de Venda")
     
     col1, col2 = st.columns([2, 1])
@@ -583,7 +623,7 @@ elif pagina_atual == "PDV":
             st.info("🛒 Carrinho vazio")
 
 # ===== RELATÓRIOS =====
-elif pagina_atual == "Relatórios":
+elif st.session_state.pagina_atual == "Relatórios":
     st.header("📊 Relatórios")
 
     tipo_relatorio = st.selectbox("Tipo de Relatório", ["Vendas", "Produtos"])
@@ -663,7 +703,7 @@ elif pagina_atual == "Relatórios":
             st.info("Nenhum produto cadastrado.")
 
 # ===== CONFIGURAÇÕES =====
-elif pagina_atual == "Configurações":
+elif st.session_state.pagina_atual == "Configurações":
     st.header("⚙️ Configurações")
 
     with st.form("config_empresa"):
