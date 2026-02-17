@@ -332,21 +332,91 @@ if not st.session_state.autenticado:
 # ========== MENU SUPERIOR FIXO ==========
 st.markdown("""
 <div class="menu-superior">
-    <div class="menu-links">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
         <span class="usuario-info">👤 {st.session_state.username if st.session_state.get('autenticado', False) else 'Usuário não logado'}</span>
-        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Dashboard' else ''}" 
-                onclick="window.location.href='?pagina=Dashboard'">🏠 Dashboard</button>
-        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Estoque' else ''}" 
-                onclick="window.location.href='?pagina=Estoque'">📦 Estoque</button>
-        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'PDV' else ''}" 
-                onclick="window.location.href='?pagina=PDV'">💵 PDV</button>
-        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Relatórios' else ''}" 
-                onclick="window.location.href='?pagina=Relatórios'">📊 Relatórios</button>
-        <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Configurações' else ''}" 
-                onclick="window.location.href='?pagina=Configurações'">⚙️ Config.</button>
-        <button class="menu-link" onclick="window.location.href='?logout=true'">🚪 Sair</button>
+        <button class="menu-toggle" onclick="document.getElementById('menu-lateral').classList.toggle('show')">☰</button>
     </div>
 </div>
+<div id="menu-lateral" class="menu-lateral">
+    <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Dashboard' else ''}" 
+            onclick="window.location.href='?pagina=Dashboard'">🏠 Dashboard</button>
+    <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Estoque' else ''}" 
+            onclick="window.location.href='?pagina=Estoque'">📦 Estoque</button>
+    <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'PDV' else ''}" 
+            onclick="window.location.href='?pagina=PDV'">💵 PDV</button>
+    <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Relatórios' else ''}" 
+            onclick="window.location.href='?pagina=Relatórios'">📊 Relatórios</button>
+    <button class="menu-link {'ativo' if st.session_state.pagina_atual == 'Configurações' else ''}" 
+            onclick="window.location.href='?pagina=Configurações'">⚙️ Config.</button>
+    <button class="menu-link" onclick="window.location.href='?logout=true'">🚪 Sair</button>
+</div>
+""", unsafe_allow_html=True)
+
+# Adicionar estilos para o botão de menu e o menu lateral
+st.markdown("""
+<style>
+    .menu-superior {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 15px 30px;
+        z-index: 1000;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+
+    .menu-toggle {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 5px 10px;
+    }
+
+    .menu-lateral {
+        display: none;
+        position: fixed;
+        top: 60px;
+        right: 0;
+        background: #333;
+        color: white;
+        width: 200px;
+        height: calc(100% - 60px);
+        box-shadow: -2px 0 5px rgba(0,0,0,0.5);
+        padding: 20px;
+        z-index: 1001;
+    }
+
+    .menu-lateral.show {
+        display: block;
+    }
+
+    .menu-link {
+        display: block;
+        color: white;
+        text-decoration: none;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        background: rgba(255,255,255,0.1);
+        transition: background 0.3s;
+    }
+
+    .menu-link:hover {
+        background: rgba(255,255,255,0.2);
+    }
+
+    .menu-link.ativo {
+        background: white;
+        color: #667eea;
+        font-weight: bold;
+    }
+</style>
 """, unsafe_allow_html=True)
 
 # Corrigir exibição do nome do usuário logado e remover espaço em branco
@@ -355,7 +425,7 @@ usuario_logado = st.session_state.username if st.session_state.get('autenticado'
 # Atualizar o HTML do menu superior para exibir o nome do usuário corretamente
 st.markdown(f"""
 <div class="menu-superior">
-    <div class="menu-links">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
         <span class="usuario-info">👤 {usuario_logado}</span>
     </div>
 </div>
