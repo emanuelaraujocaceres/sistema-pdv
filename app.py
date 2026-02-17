@@ -55,215 +55,6 @@ def get_current_user_id():
 def autenticar_usuario(usuario, senha):
     return auth.verificar_login(usuario, senha)
 
-# ========== CSS PERSONALIZADO ==========
-st.markdown("""
-<style>
-    /* ===== REMOVER TODOS OS ELEMENTOS DO STREAMLIT ===== */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    
-    header[data-testid="stHeader"] {
-        display: none !important;
-        visibility: hidden !important;
-        height: 0 !important;
-    }
-    
-    .stApp header .stActionButton,
-    .stApp header [data-testid="stActionButton"],
-    .stApp header [aria-label="Share"],
-    .stApp header [aria-label="Star"],
-    .stApp header [aria-label="Edit app"],
-    .stApp header [aria-label="Deploy"],
-    button[kind="header"],
-    button[kind="headerNoPadding"],
-    [data-testid="stStatusWidget"],
-    [data-testid="stDecoration"],
-    .st-emotion-cache-1wrcr25,
-    .st-emotion-cache-1miom6v,
-    .st-emotion-cache-18ni7ap,
-    .st-emotion-cache-1dp5yr8,
-    .st-emotion-cache-1qg05tj,
-    .st-emotion-cache-15ecur0 {
-        display: none !important;
-    }
-    
-    /* ===== MENU SUPERIOR COMPACTO ===== */
-    .menu-superior {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 5px 15px;
-        z-index: 1000;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    
-    /* Container para alinhar tudo em uma linha */
-    .menu-container {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        max-width: 1400px;
-        margin: 0 auto;
-        gap: 10px;
-    }
-    
-    /* Nome do usuário compacto */
-    .usuario-info {
-        color: white;
-        font-weight: 500;
-        padding: 3px 10px;
-        background: rgba(255,255,255,0.15);
-        border-radius: 20px;
-        font-size: 0.85rem;
-        white-space: nowrap;
-        border: 1px solid rgba(255,255,255,0.2);
-        display: inline-block;
-    }
-    
-    /* Container dos botões */
-    .botoes-container {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        padding: 2px 0;
-    }
-    
-    .botoes-container::-webkit-scrollbar {
-        display: none;
-    }
-    
-    /* Estilo para os botões do Streamlit no menu */
-    .botoes-container .stButton {
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    
-    .botoes-container .stButton button {
-        background-color: rgba(255,255,255,0.1) !important;
-        color: white !important;
-        border: 1px solid rgba(255,255,255,0.2) !important;
-        padding: 3px 10px !important;
-        border-radius: 20px !important;
-        font-weight: 500 !important;
-        font-size: 0.8rem !important;
-        transition: all 0.2s !important;
-        box-shadow: none !important;
-        min-width: unset !important;
-        height: 28px !important;
-        line-height: 1 !important;
-        margin: 0 !important;
-        white-space: nowrap !important;
-    }
-    
-    .botoes-container .stButton button:hover {
-        background-color: rgba(255,255,255,0.2) !important;
-    }
-    
-    /* Botão ativo */
-    .botoes-container .stButton button:active,
-    .botoes-container .stButton button:focus {
-        background-color: white !important;
-        color: #667eea !important;
-        font-weight: bold !important;
-    }
-    
-    /* Botão de atualizar em destaque */
-    .botao-atualizar button {
-        background: linear-gradient(135deg, #28a745, #20c997) !important;
-        border: none !important;
-        font-weight: bold !important;
-    }
-    
-    /* Botão sair */
-    .botao-sair button {
-        background-color: rgba(220, 53, 69, 0.8) !important;
-    }
-    
-    .botao-sair button:hover {
-        background-color: rgba(220, 53, 69, 1) !important;
-    }
-    
-    /* Espaço para o conteúdo */
-    .conteudo {
-        margin-top: 48px;
-        padding: 15px;
-    }
-    
-    /* Remover padding extra do Streamlit */
-    .block-container {
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-        max-width: 100% !important;
-    }
-    
-    /* Ajustes para mobile */
-    @media (max-width: 768px) {
-        .menu-container {
-            flex-wrap: wrap;
-        }
-        
-        .botoes-container {
-            width: 100%;
-            justify-content: flex-start;
-        }
-        
-        .conteudo {
-            margin-top: 70px;
-        }
-    }
-    
-    /* ===== ESTILOS EXISTENTES ===== */
-    .produto-card {
-        background-color: #ffffff;
-        padding: 15px;
-        border-radius: 10px;
-        margin: 8px 0;
-        border-left: 4px solid #667eea;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-
-    .carrinho-item {
-        background-color: #f1f8ff;
-        padding: 10px;
-        border-radius: 6px;
-        margin: 5px 0;
-        color: #333333 !important;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
-
-    [data-testid="stMetricValue"] {
-        color: #667eea !important;
-        font-size: 2rem !important;
-        font-weight: bold;
-    }
-
-    .main {
-        background-color: #f8f9fa !important;
-    }
-
-    .stTextInput input, .stTextArea textarea, .stNumberInput input {
-        color: #000000 !important;
-        background-color: #ffffff !important;
-        border: 1px solid #ddd !important;
-        border-radius: 6px;
-        padding: 8px;
-    }
-    
-    .stButton button {
-        border-radius: 6px;
-        font-weight: 500;
-        transition: all 0.2s;
-    }
-</style>
-""", unsafe_allow_html=True)
-
 # ========== SISTEMA DE LOGIN ==========
 if not st.session_state.autenticado:
     col1, col2, col3 = st.columns([1, 2, 1])
@@ -332,79 +123,258 @@ if not st.session_state.autenticado:
     
     st.stop()
 
-# ========== MENU SUPERIOR ==========
-st.markdown('<div class="menu-superior">', unsafe_allow_html=True)
-st.markdown('<div class="menu-container">', unsafe_allow_html=True)
+# ========== CSS PERSONALIZADO ==========
+st.markdown("""
+<style>
+    /* ===== REMOVER TODOS OS ELEMENTOS DO STREAMLIT ===== */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    
+    header[data-testid="stHeader"] {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+    }
+    
+    /* ===== MENU SUPERIOR ÚNICO ===== */
+    .main-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 8px 20px;
+        z-index: 1000;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 48px;
+    }
+    
+    .menu-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .usuario-info {
+        color: white;
+        font-weight: 500;
+        padding: 4px 12px;
+        background: rgba(255,255,255,0.15);
+        border-radius: 20px;
+        font-size: 0.9rem;
+        white-space: nowrap;
+        border: 1px solid rgba(255,255,255,0.2);
+        line-height: 1.2;
+    }
+    
+    .menu-right {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    /* Estilo para os botões do menu */
+    .menu-btn {
+        background: rgba(255,255,255,0.1) !important;
+        color: white !important;
+        border: 1px solid rgba(255,255,255,0.2) !important;
+        padding: 4px 12px !important;
+        border-radius: 20px !important;
+        font-weight: 500 !important;
+        font-size: 0.85rem !important;
+        transition: all 0.2s !important;
+        box-shadow: none !important;
+        min-width: unset !important;
+        height: 32px !important;
+        line-height: 1 !important;
+        margin: 0 !important;
+    }
+    
+    .menu-btn:hover {
+        background: rgba(255,255,255,0.2) !important;
+    }
+    
+    .menu-btn.active {
+        background: white !important;
+        color: #667eea !important;
+        font-weight: bold !important;
+    }
+    
+    .menu-btn.sair {
+        background: rgba(220, 53, 69, 0.8) !important;
+    }
+    
+    .menu-btn.sair:hover {
+        background: rgba(220, 53, 69, 1) !important;
+    }
+    
+    .menu-btn.atualizar {
+        background: linear-gradient(135deg, #28a745, #20c997) !important;
+        border: none !important;
+        font-weight: bold !important;
+    }
+    
+    /* Espaço para o conteúdo */
+    .conteudo {
+        margin-top: 64px;
+        padding: 20px;
+    }
+    
+    /* Remover padding extra do Streamlit */
+    .block-container {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        max-width: 100% !important;
+    }
+    
+    /* Ajustes para mobile */
+    @media (max-width: 768px) {
+        .main-menu {
+            height: auto;
+            flex-wrap: wrap;
+            padding: 8px;
+            gap: 8px;
+        }
+        
+        .menu-right {
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+        }
+        
+        .conteudo {
+            margin-top: 100px;
+        }
+    }
+    
+    /* ===== ESTILOS EXISTENTES ===== */
+    .produto-card {
+        background-color: #ffffff;
+        padding: 15px;
+        border-radius: 10px;
+        margin: 8px 0;
+        border-left: 4px solid #667eea;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
 
-# Coluna do nome do usuário
-col_nome, col_botoes = st.columns([1, 5])
+    .carrinho-item {
+        background-color: #f1f8ff;
+        padding: 10px;
+        border-radius: 6px;
+        margin: 5px 0;
+        color: #333333 !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
 
-with col_nome:
-    usuario_logado = st.session_state.username if st.session_state.autenticado else "Usuário"
-    st.markdown(f'<span class="usuario-info">👤 {usuario_logado}</span>', unsafe_allow_html=True)
+    [data-testid="stMetricValue"] {
+        color: #667eea !important;
+        font-size: 2rem !important;
+        font-weight: bold;
+    }
 
-with col_botoes:
-    st.markdown('<div class="botoes-container">', unsafe_allow_html=True)
-    
-    # Botões do menu
-    col_btns = st.columns(7)
-    
-    with col_btns[0]:
-        if st.button("🏠", key="menu_dashboard", help="Dashboard"):
-            st.session_state.pagina_atual = "Dashboard"
-            st.rerun()
-    
-    with col_btns[1]:
-        if st.button("📦", key="menu_estoque", help="Estoque"):
-            st.session_state.pagina_atual = "Estoque"
-            st.rerun()
-    
-    with col_btns[2]:
-        if st.button("💵", key="menu_pdv", help="PDV"):
-            st.session_state.pagina_atual = "PDV"
-            st.rerun()
-    
-    with col_btns[3]:
-        if st.button("📊", key="menu_relatorios", help="Relatórios"):
-            st.session_state.pagina_atual = "Relatórios"
-            st.rerun()
-    
-    with col_btns[4]:
-        if st.button("⚙️", key="menu_config", help="Configurações"):
-            st.session_state.pagina_atual = "Configurações"
-            st.rerun()
-    
-    with col_btns[5]:
-        if st.button("🚪", key="menu_sair", help="Sair"):
-            st.session_state.autenticado = False
-            st.session_state.username = ""
-            st.session_state.user_id = None
-            st.session_state.pagina_atual = "Login"
-            st.session_state.carrinho = []
-            st.rerun()
-    
-    with col_btns[6]:
-        if st.button("🔄", key="menu_atualizar", help="Atualizar"):
-            st.rerun()
-    
-    st.markdown('</div>', unsafe_allow_html=True)
+    .main {
+        background-color: #f8f9fa !important;
+    }
 
-st.markdown('</div>', unsafe_allow_html=True)
-st.markdown('</div>', unsafe_allow_html=True)
+    .stTextInput input, .stTextArea textarea, .stNumberInput input {
+        color: #000000 !important;
+        background-color: #ffffff !important;
+        border: 1px solid #ddd !important;
+        border-radius: 6px;
+        padding: 8px;
+    }
+    
+    .stButton button {
+        border-radius: 6px;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+</style>
+""", unsafe_allow_html=True)
 
-# Marcar botão ativo
-active_css = f"""
+# ========== MENU SUPERIOR ÚNICO ==========
+usuario_logado = st.session_state.username if st.session_state.autenticado else "Usuário"
+
+# Criar o menu como um único elemento HTML + botões do Streamlit
+menu_html = f"""
+<div class="main-menu">
+    <div class="menu-left">
+        <span class="usuario-info">👤 {usuario_logado}</span>
+    </div>
+    <div class="menu-right">
+"""
+
+st.markdown(menu_html, unsafe_allow_html=True)
+
+# Botões do menu (usando colunas para alinhamento horizontal)
+cols = st.columns(8)
+
+with cols[0]:
+    if st.button("🏠 Dashboard", key="menu_dashboard", help="Dashboard"):
+        st.session_state.pagina_atual = "Dashboard"
+        st.rerun()
+
+with cols[1]:
+    if st.button("📦 Estoque", key="menu_estoque", help="Estoque"):
+        st.session_state.pagina_atual = "Estoque"
+        st.rerun()
+
+with cols[2]:
+    if st.button("💵 PDV", key="menu_pdv", help="PDV"):
+        st.session_state.pagina_atual = "PDV"
+        st.rerun()
+
+with cols[3]:
+    if st.button("📊 Relatórios", key="menu_relatorios", help="Relatórios"):
+        st.session_state.pagina_atual = "Relatórios"
+        st.rerun()
+
+with cols[4]:
+    if st.button("⚙️ Config", key="menu_config", help="Configurações"):
+        st.session_state.pagina_atual = "Configurações"
+        st.rerun()
+
+with cols[5]:
+    if st.button("🚪 Sair", key="menu_sair", help="Sair", type="secondary"):
+        st.session_state.autenticado = False
+        st.session_state.username = ""
+        st.session_state.user_id = None
+        st.session_state.pagina_atual = "Login"
+        st.session_state.carrinho = []
+        st.rerun()
+
+with cols[6]:
+    if st.button("🔄", key="menu_atualizar", help="Atualizar página"):
+        st.rerun()
+
+with cols[7]:
+    # Espaço vazio para alinhamento
+    st.empty()
+
+# Fechar as tags HTML do menu
+st.markdown("""
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+# CSS para destacar o botão ativo
+active_btn_css = f"""
 <style>
     button[key="menu_{st.session_state.pagina_atual.lower()}"] {{
-        background-color: white !important;
+        background: white !important;
         color: #667eea !important;
         font-weight: bold !important;
     }}
 </style>
 """
-if st.session_state.pagina_atual != "Login":
-    st.markdown(active_css, unsafe_allow_html=True)
+if st.session_state.pagina_atual in ["Dashboard", "Estoque", "PDV", "Relatórios", "Configurações"]:
+    st.markdown(active_btn_css, unsafe_allow_html=True)
 
+# Início do conteúdo
 st.markdown('<div class="conteudo">', unsafe_allow_html=True)
 
 # ========== CONTEÚDO DAS PÁGINAS ==========
