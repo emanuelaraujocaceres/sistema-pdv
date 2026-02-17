@@ -20,7 +20,7 @@ st.set_page_config(
     page_title="Sistema de Controle Profissional",
     page_icon="💰",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="auto"  # Mudado para "auto" para manter comportamento padrão
 )
 
 # Inicializar variáveis de sessão
@@ -38,10 +38,8 @@ if 'carrinho' not in st.session_state:
     st.session_state.carrinho = []
 if 'modo_login' not in st.session_state:
     st.session_state.modo_login = "login"  # "login" ou "criar"
-if 'sidebar_state' not in st.session_state:
-    st.session_state.sidebar_state = "expanded"
 
-# CSS personalizado global
+# CSS personalizado global (removido o JavaScript e CSS problemáticos)
 st.markdown("""
 <style>
     /* Estilo para o menu lateral com botões */
@@ -174,60 +172,20 @@ st.markdown("""
         opacity: 1;
     }
     
-    /* Habilitar pull-to-refresh no celular */
+    /* Habilitar pull-to-refresh no celular - ÚNICA alteração mantida */
     body {
         overscroll-behavior: auto !important;
     }
     
-    /* Garantir que o scroll funcione corretamente */
     .main > div {
         overscroll-behavior: contain;
     }
     
-    /* Melhorar a experiência de scroll no celular */
     .stApp {
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
     }
-    
-    /* Forçar sidebar a recolher no celular após clique */
-    @media (max-width: 768px) {
-        [data-testid="stSidebar"][aria-expanded="true"] {
-            display: none;
-        }
-    }
 </style>
-
-<script>
-    // Função para recolher a sidebar automaticamente no celular
-    function collapseSidebar() {
-        if (window.innerWidth < 768) {
-            const sidebar = document.querySelector('[data-testid="stSidebar"]');
-            const collapseBtn = document.querySelector('[data-testid="collapsed-control"]');
-            if (sidebar && !sidebar.classList.contains('collapsed') && collapseBtn) {
-                setTimeout(() => {
-                    collapseBtn.click();
-                }, 100);
-            }
-        }
-    }
-    
-    // Executar quando a página carregar
-    document.addEventListener('DOMContentLoaded', collapseSidebar);
-    
-    // Executar quando a navegação mudar (para capturar cliques no menu)
-    const observer = new MutationObserver(function(mutations) {
-        collapseSidebar();
-    });
-    
-    // Observar mudanças no DOM
-    setTimeout(function() {
-        const sidebar = document.querySelector('[data-testid="stSidebar"]');
-        if (sidebar) {
-            observer.observe(sidebar, { childList: true, subtree: true, attributes: true });
-        }
-    }, 1000);
-</script>
 """, unsafe_allow_html=True)
 
 def gerar_codigo(nome_input):
@@ -362,7 +320,7 @@ with st.sidebar:
     
     st.caption("Sistema Profissional v1.0")
 
-# Título principal (sem botão de atualizar)
+# Título principal
 st.title(f"💰 Sistema de Controle - {st.session_state.username}")
 st.markdown("---")
 
@@ -370,7 +328,7 @@ st.markdown("---")
 if st.session_state.menu == "🏠 Dashboard":
     st.header("📊 Dashboard")
     
-    # ALTERAÇÃO: Agora usa banco.listar_produtos em vez de carregar_dados
+    # Usa banco.listar_produtos
     produtos = banco.listar_produtos(st.session_state.user_id)
     
     if not produtos.empty:
@@ -437,7 +395,7 @@ elif st.session_state.menu == "📦 Controle de Estoque":
                     key="cat_cadastro"
                 )
             
-            # Campo de código (agora usando o valor da sessão)
+            # Campo de código
             codigo = st.text_input("Código do Produto *", 
                                   value=st.session_state.codigo_auto,
                                   key="codigo_cadastro",
@@ -449,7 +407,6 @@ elif st.session_state.menu == "📦 Controle de Estoque":
             submitted = st.form_submit_button("✅ Cadastrar Produto", use_container_width=True)
             
             if submitted:
-                # Validações
                 if not nome:
                     st.error("❌ Nome do produto é obrigatório!")
                 elif not codigo:
@@ -457,7 +414,6 @@ elif st.session_state.menu == "📦 Controle de Estoque":
                 elif preco <= 0:
                     st.error("❌ Preço deve ser maior que zero!")
                 else:
-                    # ALTERAÇÃO: Usar banco.criar_produto em vez de SQL direto
                     sucesso, mensagem = banco.criar_produto(
                         st.session_state.user_id, 
                         codigo, nome, descricao, 
@@ -466,14 +422,12 @@ elif st.session_state.menu == "📦 Controle de Estoque":
                     if sucesso:
                         st.success(mensagem)
                         st.balloons()
-                        # Limpar formulário
                         st.session_state.codigo_auto = ""
                         for key in ['nome_cadastro', 'descricao_cadastro']:
                             if key in st.session_state:
                                 del st.session_state[key]
                     else:
                         st.error(mensagem)
-                        # Gerar novo código automaticamente
                         st.session_state.codigo_auto = gerar_codigo(nome)
         
         # Botão "Gerar Novo" FORA do formulário
@@ -489,11 +443,9 @@ elif st.session_state.menu == "📦 Controle de Estoque":
     with aba2:
         st.subheader("📋 Produtos Cadastrados")
         
-        # ALTERAÇÃO: Usar banco.listar_produtos
         produtos = banco.listar_produtos(st.session_state.user_id)
         
         if not produtos.empty:
-            # Selecionar apenas as colunas desejadas (sem o ID)
             colunas_exibicao = {
                 'codigo': 'Código',
                 'nome': 'Nome',
@@ -505,18 +457,10 @@ elif st.session_state.menu == "📦 Controle de Estoque":
             
             df_exibicao = produtos[list(colunas_exibicao.keys())].copy()
             df_exibicao = df_exibicao.rename(columns=colunas_exibicao)
-
-            # Formatar preço
             df_exibicao['Preço (R$)'] = df_exibicao['Preço (R$)'].apply(lambda x: f"{x:.2f}")
-
-            # Mostrar tabela sem barra de rolagem horizontal
-            st.dataframe(
-                df_exibicao,
-                use_container_width=True,
-                hide_index=True
-            )
             
-            # Gráfico de estoque por categoria
+            st.dataframe(df_exibicao, use_container_width=True, hide_index=True)
+            
             if not produtos.empty and 'categoria' in produtos.columns:
                 st.subheader("📊 Estoque por Categoria")
                 estoque_categoria = produtos.groupby('categoria')['quantidade'].sum().reset_index()
@@ -530,11 +474,9 @@ elif st.session_state.menu == "📦 Controle de Estoque":
     with aba3:
         st.subheader("✏️ Editar/Excluir Produtos")
         
-        # ALTERAÇÃO: Usar banco.listar_produtos
         produtos = banco.listar_produtos(st.session_state.user_id)
         
         if not produtos.empty:
-            # Selecionar produto para editar
             produto_para_editar = st.selectbox(
                 "Selecione o produto para editar",
                 options=produtos['id'].tolist(),
@@ -542,7 +484,6 @@ elif st.session_state.menu == "📦 Controle de Estoque":
             )
             
             if produto_para_editar:
-                # Pegar dados do produto selecionado
                 produto = produtos[produtos['id'] == produto_para_editar].iloc[0]
                 
                 with st.form("editar_produto"):
@@ -568,7 +509,6 @@ elif st.session_state.menu == "📦 Controle de Estoque":
                     
                     with col_btn1:
                         if st.form_submit_button("💾 Salvar Alterações", use_container_width=True):
-                            # ALTERAÇÃO: Usar banco.atualizar_produto
                             sucesso, mensagem = banco.atualizar_produto(
                                 st.session_state.user_id,
                                 produto_para_editar,
@@ -583,7 +523,6 @@ elif st.session_state.menu == "📦 Controle de Estoque":
 
                     with col_btn2:
                         if st.form_submit_button("🗑️ Excluir Produto", use_container_width=True):
-                            # ALTERAÇÃO: Usar banco.excluir_produto
                             sucesso, mensagem = banco.excluir_produto(st.session_state.user_id, produto_para_editar)
                             if sucesso:
                                 st.success(mensagem)
@@ -606,13 +545,11 @@ elif st.session_state.menu == "💵 PDV (Ponto de Venda)":
     with col1:
         st.subheader("📦 Produtos Disponíveis")
         
-        # ALTERAÇÃO: Usar banco.listar_produtos_com_estoque
         produtos = banco.listar_produtos_com_estoque(st.session_state.user_id)
         
         if not produtos.empty:
             st.success(f"**{len(produtos)} produtos disponíveis para venda**")
             
-            # Criar uma grid de produtos (3 por linha)
             cols = st.columns(3)
             for idx, (_, produto) in enumerate(produtos.iterrows()):
                 with cols[idx % 3]:
@@ -627,11 +564,9 @@ elif st.session_state.menu == "💵 PDV (Ponto de Venda)":
                         """, unsafe_allow_html=True)
                         
                         if st.button(f"➕ Adicionar", key=f"btn_{produto['id']}"):
-                            # Inicializar carrinho se não existir
                             if 'carrinho' not in st.session_state:
                                 st.session_state.carrinho = []
                             
-                            # Verificar se produto já está no carrinho
                             encontrado = False
                             for item in st.session_state.carrinho:
                                 if item['id'] == produto['id']:
@@ -691,7 +626,6 @@ elif st.session_state.menu == "💵 PDV (Ponto de Venda)":
                     total += item['subtotal']
                     st.divider()
             
-            # Mostrar total em destaque
             st.markdown(f"""
             <div style="background-color: #0f4c81; color: white; padding: 15px; border-radius: 5px; text-align: center; margin: 10px 0;">
                 <h2>TOTAL: R$ {total:.2f}</h2>
@@ -704,7 +638,6 @@ elif st.session_state.menu == "💵 PDV (Ponto de Venda)":
             )
             
             if st.button("✅ FINALIZAR VENDA", type="primary", use_container_width=True):
-                # ALTERAÇÃO: Usar banco.criar_venda
                 sucesso, mensagem = banco.criar_venda(
                     st.session_state.user_id,
                     total,
@@ -733,7 +666,6 @@ elif st.session_state.menu == "📊 Relatórios":
     if tipo_relatorio == "Vendas":
         st.subheader("📈 Vendas")
         
-        # Configurar formato de data brasileiro
         col1, col2 = st.columns(2)
         with col1:
             data_inicio = st.date_input(
@@ -748,19 +680,15 @@ elif st.session_state.menu == "📊 Relatórios":
                 format="DD/MM/YYYY"
             )
         
-        # Mostrar datas no formato brasileiro
         st.caption(f"Período: {data_inicio.strftime('%d/%m/%Y')} a {data_fim.strftime('%d/%m/%Y')}")
         
         if st.button("📊 Gerar Relatório", use_container_width=True):
-            # ALTERAÇÃO: Usar banco.listar_vendas
             vendas = banco.listar_vendas(st.session_state.user_id, data_inicio, data_fim)
             
             if not vendas.empty:
-                # Totais
                 total_vendas = len(vendas)
                 valor_total = vendas['total'].sum()
                 
-                # Métricas
                 col1, col2, col3 = st.columns(3)
                 with col1:
                     st.metric("Total de Vendas", total_vendas)
@@ -770,7 +698,6 @@ elif st.session_state.menu == "📊 Relatórios":
                     media = valor_total / total_vendas if total_vendas > 0 else 0
                     st.metric("Ticket Médio", f"R$ {media:.2f}")
                 
-                # Tabela de vendas
                 st.subheader("Detalhamento das Vendas")
                 df_vendas = vendas[['data_hora', 'total', 'forma_pagamento']].copy()
                 df_vendas['data_hora'] = pd.to_datetime(df_vendas['data_hora']).dt.strftime('%d/%m/%Y %H:%M')
@@ -779,7 +706,6 @@ elif st.session_state.menu == "📊 Relatórios":
                 
                 st.dataframe(df_vendas, use_container_width=True, hide_index=True)
                 
-                # Gráfico de vendas por dia
                 vendas['data'] = pd.to_datetime(vendas['data_hora']).dt.date
                 vendas_por_dia = vendas.groupby('data')['total'].sum().reset_index()
                 
@@ -789,13 +715,11 @@ elif st.session_state.menu == "📊 Relatórios":
                 fig.update_layout(yaxis_title="Valor (R$)")
                 st.plotly_chart(fig, use_container_width=True)
                 
-                # Gráfico de formas de pagamento
                 if 'forma_pagamento' in vendas.columns:
                     fig_pag = px.pie(vendas, names='forma_pagamento', values='total',
                                    title="Vendas por Forma de Pagamento")
                     st.plotly_chart(fig_pag, use_container_width=True)
                 
-                # Opção de exportar
                 if st.button("📥 Exportar para Excel", use_container_width=True):
                     st.info("Funcionalidade de exportação será implementada em breve!")
             else:
@@ -804,23 +728,18 @@ elif st.session_state.menu == "📊 Relatórios":
     elif tipo_relatorio == "Produtos":
         st.subheader("📦 Produtos")
         
-        # ALTERAÇÃO: Usar banco.listar_produtos
         produtos = banco.listar_produtos(st.session_state.user_id)
         
         if not produtos.empty:
-            # Calcular valor total do estoque
             produtos['valor_total'] = produtos['quantidade'] * produtos['preco']
             valor_total_estoque = produtos['valor_total'].sum()
             
-            # Métrica em destaque
             st.metric("Valor Total do Estoque", f"R$ {valor_total_estoque:.2f}")
             
-            # Preparar dados para exibição (sem índice)
             df_estoque = produtos[['nome', 'quantidade', 'preco', 'valor_total']].copy()
             df_estoque['preco'] = df_estoque['preco'].apply(lambda x: f"R$ {x:.2f}")
             df_estoque['valor_total'] = df_estoque['valor_total'].apply(lambda x: f"R$ {x:.2f}")
             
-            # Mostrar tabela sem barra de rolagem lateral
             st.dataframe(
                 df_estoque,
                 use_container_width=True,
@@ -833,7 +752,6 @@ elif st.session_state.menu == "📊 Relatórios":
                 }
             )
             
-            # Gráfico
             fig = px.bar(produtos, x='nome', y='quantidade', 
                         title="Quantidade em Estoque",
                         color='nome')
