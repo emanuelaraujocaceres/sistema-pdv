@@ -2,11 +2,10 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from datetime import datetime
-import banco
-import sqlite3
+import banco  # Agora importa o banco.py atualizado
 import auth  # Módulo de autenticação
 
-# Criar tabela de usuários (se não existir)
+# Criar tabela de usuários (se não existir) - mantido para compatibilidade
 auth.criar_tabela_usuarios()
 
 # Função auxiliar para pegar o ID do usuário atual
@@ -15,16 +14,6 @@ def get_current_user_id():
     if st.session_state.autenticado:
         return auth.get_usuario_id(st.session_state.username)
     return None
-
-# Forçar atualização dos dados sempre que a página carregar
-@st.cache_data(ttl=0)  # ttl=0 significa "não fazer cache"
-def carregar_dados(user_id):
-    """Carrega dados atualizados do banco APENAS do usuário atual"""
-    conn = banco.conectar()
-    query = "SELECT * FROM produtos WHERE user_id = ? ORDER BY nome"
-    produtos = pd.read_sql_query(query, conn, params=(user_id,))
-    conn.close()
-    return produtos
 
 # Configuração da página
 st.set_page_config(
@@ -324,7 +313,8 @@ st.markdown("---")
 if st.session_state.menu == "🏠 Dashboard":
     st.header("📊 Dashboard")
     
-    produtos = carregar_dados(st.session_state.user_id)
+    # ALTERAÇÃO: Agora usa banco.listar_produtos em vez de carregar_dados
+    produtos = banco.listar_produtos(st.session_state.user_id)
     
     if not produtos.empty:
         # Métricas principais
@@ -410,35 +400,24 @@ elif st.session_state.menu == "📦 Controle de Estoque":
                 elif preco <= 0:
                     st.error("❌ Preço deve ser maior que zero!")
                 else:
-                    conn = banco.conectar()
-                    cursor = conn.cursor()
-                    try:
-                        # Verificar se código já existe para este usuário
-                        cursor.execute("SELECT id FROM produtos WHERE codigo = ? AND user_id = ?", 
-                                     (codigo, st.session_state.user_id))
-                        if cursor.fetchone():
-                            st.error(f"❌ Código '{codigo}' já existe para sua conta! Use um código diferente.")
-                            # Gerar novo código automaticamente
-                            st.session_state.codigo_auto = gerar_codigo(nome)
-                        else:
-                            cursor.execute('''
-                                INSERT INTO produtos (codigo, nome, descricao, preco, quantidade, categoria, user_id)
-                                VALUES (?, ?, ?, ?, ?, ?, ?)
-                            ''', (codigo, nome, descricao, preco, quantidade, categoria, st.session_state.user_id))
-                            conn.commit()
-                            st.success(f"✅ Produto {nome} cadastrado com sucesso!")
-                            st.balloons()
-                            
-                            # Limpar formulário
-                            st.session_state.codigo_auto = ""
-                            for key in ['nome_cadastro', 'descricao_cadastro']:
-                                if key in st.session_state:
-                                    del st.session_state[key]
-                            
-                    except Exception as e:
-                        st.error(f"❌ Erro ao cadastrar: {e}")
-                    finally:
-                        conn.close()
+                    # ALTERAÇÃO: Usar banco.criar_produto em vez de SQL direto
+                    sucesso, mensagem = banco.criar_produto(
+                        st.session_state.user_id, 
+                        codigo, nome, descricao, 
+                        preco, quantidade, categoria
+                    )
+                    if sucesso:
+                        st.success(mensagem)
+                        st.balloons()
+                        # Limpar formulário
+                        st.session_state.codigo_auto = ""
+                        for key in ['nome_cadastro', 'descricao_cadastro']:
+                            if key in st.session_state:
+                                del st.session_state[key]
+                    else:
+                        st.error(mensagem)
+                        # Gerar novo código automaticamente
+                        st.session_state.codigo_auto = gerar_codigo(nome)
         
         # Botão "Gerar Novo" FORA do formulário
         col1, col2, col3 = st.columns(3)
@@ -453,7 +432,8 @@ elif st.session_state.menu == "📦 Controle de Estoque":
     with aba2:
         st.subheader("📋 Produtos Cadastrados")
         
-        produtos = carregar_dados(st.session_state.user_id)  # Dados do usuário atual
+        # ALTERAÇÃO: Usar banco.listar_produtos
+        produtos = banco.listar_produtos(st.session_state.user_id)
         
         if not produtos.empty:
             # Selecionar apenas as colunas desejadas (sem o ID)
@@ -493,11 +473,8 @@ elif st.session_state.menu == "📦 Controle de Estoque":
     with aba3:
         st.subheader("✏️ Editar/Excluir Produtos")
         
-        # Conectar ao banco
-        conn = banco.conectar()
-        query = "SELECT * FROM produtos WHERE user_id = ? ORDER BY nome"
-        produtos = pd.read_sql_query(query, conn, params=(st.session_state.user_id,))
-        conn.close()
+        # ALTERAÇÃO: Usar banco.listar_produtos
+        produtos = banco.listar_produtos(st.session_state.user_id)
         
         if not produtos.empty:
             # Selecionar produto para editar
@@ -534,37 +511,28 @@ elif st.session_state.menu == "📦 Controle de Estoque":
                     
                     with col_btn1:
                         if st.form_submit_button("💾 Salvar Alterações", use_container_width=True):
-                            conn = banco.conectar()
-                            cursor = conn.cursor()
-                            try:
-                                cursor.execute('''
-                                    UPDATE produtos 
-                                    SET codigo=?, nome=?, descricao=?, preco=?, quantidade=?, categoria=?
-                                    WHERE id=? AND user_id=?
-                                ''', (novo_codigo, novo_nome, nova_descricao, novo_preco, nova_quantidade, nova_categoria, 
-                                     produto_para_editar, st.session_state.user_id))
-                                conn.commit()
-                                st.success("✅ Produto atualizado com sucesso!")
+                            # ALTERAÇÃO: Usar banco.atualizar_produto
+                            sucesso, mensagem = banco.atualizar_produto(
+                                st.session_state.user_id,
+                                produto_para_editar,
+                                novo_codigo, novo_nome, nova_descricao,
+                                novo_preco, nova_quantidade, nova_categoria
+                            )
+                            if sucesso:
+                                st.success(mensagem)
                                 st.rerun()
-                            except Exception as e:
-                                st.error(f"❌ Erro ao atualizar: {e}")
-                            finally:
-                                conn.close()
+                            else:
+                                st.error(mensagem)
 
                     with col_btn2:
                         if st.form_submit_button("🗑️ Excluir Produto", use_container_width=True):
-                            conn = banco.conectar()
-                            cursor = conn.cursor()
-                            try:
-                                cursor.execute("DELETE FROM produtos WHERE id=? AND user_id=?", 
-                                             (produto_para_editar, st.session_state.user_id))
-                                conn.commit()
-                                st.success("✅ Produto excluído com sucesso!")
+                            # ALTERAÇÃO: Usar banco.excluir_produto
+                            sucesso, mensagem = banco.excluir_produto(st.session_state.user_id, produto_para_editar)
+                            if sucesso:
+                                st.success(mensagem)
                                 st.rerun()
-                            except Exception as e:
-                                st.error(f"❌ Erro ao excluir: {e}")
-                            finally:
-                                conn.close()
+                            else:
+                                st.error(mensagem)
 
                     with col_btn3:
                         if st.form_submit_button("🔄 Cancelar", use_container_width=True):
@@ -581,10 +549,8 @@ elif st.session_state.menu == "💵 PDV (Ponto de Venda)":
     with col1:
         st.subheader("📦 Produtos Disponíveis")
         
-        conn = banco.conectar()
-        query = "SELECT * FROM produtos WHERE quantidade > 0 AND user_id = ? ORDER BY nome"
-        produtos = pd.read_sql_query(query, conn, params=(st.session_state.user_id,))
-        conn.close()
+        # ALTERAÇÃO: Usar banco.listar_produtos_com_estoque
+        produtos = banco.listar_produtos_com_estoque(st.session_state.user_id)
         
         if not produtos.empty:
             st.success(f"**{len(produtos)} produtos disponíveis para venda**")
@@ -681,49 +647,20 @@ elif st.session_state.menu == "💵 PDV (Ponto de Venda)":
             )
             
             if st.button("✅ FINALIZAR VENDA", type="primary", use_container_width=True):
-                conn = banco.conectar()
-                cursor = conn.cursor()
-                
-                try:
-                    # 1. Criar a venda (com user_id)
-                    cursor.execute('''
-                        INSERT INTO vendas (data_hora, total, forma_pagamento, user_id)
-                        VALUES (datetime('now', 'localtime'), ?, ?, ?)
-                    ''', (total, forma_pagamento, st.session_state.user_id))
-                    
-                    venda_id = cursor.lastrowid
-                    
-                    # 2. Registrar itens e dar baixa no estoque
-                    for item in st.session_state.carrinho:
-                        # Inserir item da venda
-                        cursor.execute('''
-                            INSERT INTO itens_venda (venda_id, produto_id, quantidade, preco_unitario, subtotal, user_id)
-                            VALUES (?, ?, ?, ?, ?, ?)
-                        ''', (venda_id, item['id'], item['quantidade'], item['preco'], item['subtotal'], 
-                             st.session_state.user_id))
-                        
-                        # Dar baixa no estoque (apenas se o produto for do usuário)
-                        cursor.execute('''
-                            UPDATE produtos 
-                            SET quantidade = quantidade - ? 
-                            WHERE id = ? AND user_id = ? AND quantidade >= ?
-                        ''', (item['quantidade'], item['id'], st.session_state.user_id, item['quantidade']))
-                        
-                        # Verificar se a baixa funcionou
-                        if cursor.rowcount == 0:
-                            raise Exception(f"Estoque insuficiente para {item['nome']}")
-                    
-                    conn.commit()
+                # ALTERAÇÃO: Usar banco.criar_venda
+                sucesso, mensagem = banco.criar_venda(
+                    st.session_state.user_id,
+                    total,
+                    forma_pagamento,
+                    st.session_state.carrinho
+                )
+                if sucesso:
                     st.balloons()
-                    st.success(f"✅ Venda de R$ {total:.2f} finalizada com sucesso!")
+                    st.success(mensagem)
                     st.session_state.carrinho = []
                     st.rerun()
-                    
-                except Exception as e:
-                    conn.rollback()
-                    st.error(f"❌ Erro ao finalizar venda: {e}")
-                finally:
-                    conn.close()
+                else:
+                    st.error(mensagem)
         else:
             st.info("🛒 Carrinho vazio")
 
@@ -758,24 +695,8 @@ elif st.session_state.menu == "📊 Relatórios":
         st.caption(f"Período: {data_inicio.strftime('%d/%m/%Y')} a {data_fim.strftime('%d/%m/%Y')}")
         
         if st.button("📊 Gerar Relatório", use_container_width=True):
-            conn = banco.conectar()
-            
-            # Consultar vendas do período (apenas do usuário atual)
-            query = '''
-                SELECT 
-                    v.id,
-                    v.data_hora,
-                    v.total,
-                    v.forma_pagamento,
-                    COUNT(iv.id) as itens
-                FROM vendas v
-                LEFT JOIN itens_venda iv ON v.id = iv.venda_id
-                WHERE v.user_id = ? AND DATE(v.data_hora) BETWEEN DATE(?) AND DATE(?)
-                GROUP BY v.id
-                ORDER BY v.data_hora DESC
-            '''
-            
-            vendas = pd.read_sql_query(query, conn, params=(st.session_state.user_id, data_inicio, data_fim))
+            # ALTERAÇÃO: Usar banco.listar_vendas
+            vendas = banco.listar_vendas(st.session_state.user_id, data_inicio, data_fim)
             
             if not vendas.empty:
                 # Totais
@@ -794,10 +715,10 @@ elif st.session_state.menu == "📊 Relatórios":
                 
                 # Tabela de vendas
                 st.subheader("Detalhamento das Vendas")
-                df_vendas = vendas[['data_hora', 'total', 'forma_pagamento', 'itens']].copy()
+                df_vendas = vendas[['data_hora', 'total', 'forma_pagamento']].copy()
                 df_vendas['data_hora'] = pd.to_datetime(df_vendas['data_hora']).dt.strftime('%d/%m/%Y %H:%M')
                 df_vendas['total'] = df_vendas['total'].apply(lambda x: f"R$ {x:.2f}")
-                df_vendas.columns = ['Data/Hora', 'Total', 'Pagamento', 'Itens']
+                df_vendas.columns = ['Data/Hora', 'Total', 'Pagamento']
                 
                 st.dataframe(df_vendas, use_container_width=True, hide_index=True)
                 
@@ -812,22 +733,22 @@ elif st.session_state.menu == "📊 Relatórios":
                 st.plotly_chart(fig, use_container_width=True)
                 
                 # Gráfico de formas de pagamento
-                fig_pag = px.pie(vendas, names='forma_pagamento', values='total',
-                               title="Vendas por Forma de Pagamento")
-                st.plotly_chart(fig_pag, use_container_width=True)
+                if 'forma_pagamento' in vendas.columns:
+                    fig_pag = px.pie(vendas, names='forma_pagamento', values='total',
+                                   title="Vendas por Forma de Pagamento")
+                    st.plotly_chart(fig_pag, use_container_width=True)
                 
                 # Opção de exportar
                 if st.button("📥 Exportar para Excel", use_container_width=True):
                     st.info("Funcionalidade de exportação será implementada em breve!")
             else:
                 st.info(f"Nenhuma venda encontrada no período de {data_inicio.strftime('%d/%m/%Y')} a {data_fim.strftime('%d/%m/%Y')}")
-            
-            conn.close()
 
     elif tipo_relatorio == "Produtos":
         st.subheader("📦 Produtos")
         
-        produtos = carregar_dados(st.session_state.user_id)
+        # ALTERAÇÃO: Usar banco.listar_produtos
+        produtos = banco.listar_produtos(st.session_state.user_id)
         
         if not produtos.empty:
             # Calcular valor total do estoque
