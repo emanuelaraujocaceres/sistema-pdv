@@ -354,10 +354,10 @@ menu_html = f"""
 st.markdown(menu_html, unsafe_allow_html=True)
 
 # Corrigir comportamento de F5 e pull-to-refresh
-query_params = st.experimental_get_query_params()
+query_params = st.experimental_get_query_params() if hasattr(st, 'experimental_get_query_params') else {}
 
 if "pagina" in query_params:
-    pagina = query_params["pagina"][0]
+    pagina = query_params.get("pagina", [None])[0]
     if pagina in ["Dashboard", "Estoque", "PDV", "Relatórios", "Configurações"]:
         st.session_state.pagina_atual = pagina
 
