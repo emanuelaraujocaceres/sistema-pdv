@@ -137,248 +137,166 @@ st.markdown("""
         height: 0 !important;
     }
     
-    /* ===== MENU SUPERIOR ÚNICO ===== */
-    .main-menu {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
+    /* Reset de margens e paddings */
+    .main > div {
+        padding-top: 0 !important;
+    }
+    
+    .block-container {
+        padding-top: 0 !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        max-width: 100% !important;
+    }
+    
+    /* ===== MENU SUPERIOR INTEGRADO ===== */
+    .menu-integrado {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 8px 20px;
-        z-index: 1000;
+        padding: 0.5rem 1rem;
+        border-radius: 0 0 10px 10px;
+        margin-bottom: 1rem;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        width: 100%;
+    }
+    
+    .menu-container {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        height: 48px;
+        flex-wrap: wrap;
+        gap: 0.5rem;
     }
     
-    .menu-left {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    
-    .usuario-info {
-        color: white;
-        font-weight: 500;
-        padding: 4px 12px;
+    .usuario-tag {
         background: rgba(255,255,255,0.15);
+        color: white;
+        padding: 0.25rem 1rem;
         border-radius: 20px;
+        font-weight: 500;
         font-size: 0.9rem;
-        white-space: nowrap;
         border: 1px solid rgba(255,255,255,0.2);
-        line-height: 1.2;
+        white-space: nowrap;
     }
     
-    .menu-right {
+    .botoes-wrapper {
         display: flex;
         align-items: center;
-        gap: 5px;
+        gap: 0.25rem;
+        flex-wrap: wrap;
     }
     
-    /* Estilo para os botões do menu */
-    .menu-btn {
-        background: rgba(255,255,255,0.1) !important;
-        color: white !important;
-        border: 1px solid rgba(255,255,255,0.2) !important;
-        padding: 4px 12px !important;
-        border-radius: 20px !important;
-        font-weight: 500 !important;
-        font-size: 0.85rem !important;
-        transition: all 0.2s !important;
-        box-shadow: none !important;
-        min-width: unset !important;
-        height: 32px !important;
-        line-height: 1 !important;
-        margin: 0 !important;
+    .btn-menu {
+        background: rgba(255,255,255,0.1);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.2);
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-block;
+        white-space: nowrap;
     }
     
-    .menu-btn:hover {
-        background: rgba(255,255,255,0.2) !important;
+    .btn-menu:hover {
+        background: rgba(255,255,255,0.2);
     }
     
-    .menu-btn.active {
-        background: white !important;
-        color: #667eea !important;
-        font-weight: bold !important;
+    .btn-menu.ativo {
+        background: white;
+        color: #667eea;
+        font-weight: bold;
     }
     
-    .menu-btn.sair {
-        background: rgba(220, 53, 69, 0.8) !important;
+    .btn-menu.sair {
+        background: rgba(220, 53, 69, 0.8);
     }
     
-    .menu-btn.sair:hover {
-        background: rgba(220, 53, 69, 1) !important;
+    .btn-menu.sair:hover {
+        background: rgba(220, 53, 69, 1);
     }
     
-    .menu-btn.atualizar {
-        background: linear-gradient(135deg, #28a745, #20c997) !important;
-        border: none !important;
-        font-weight: bold !important;
+    .btn-menu.atualizar {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border: none;
+    }
+    
+    /* Responsividade */
+    @media (max-width: 768px) {
+        .menu-container {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .botoes-wrapper {
+            width: 100%;
+            justify-content: center;
+        }
     }
     
     /* Espaço para o conteúdo */
     .conteudo {
-        margin-top: 64px;
-        padding: 20px;
-    }
-    
-    /* Remover padding extra do Streamlit */
-    .block-container {
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-        max-width: 100% !important;
-    }
-    
-    /* Ajustes para mobile */
-    @media (max-width: 768px) {
-        .main-menu {
-            height: auto;
-            flex-wrap: wrap;
-            padding: 8px;
-            gap: 8px;
-        }
-        
-        .menu-right {
-            flex-wrap: wrap;
-            justify-content: center;
-            width: 100%;
-        }
-        
-        .conteudo {
-            margin-top: 100px;
-        }
-    }
-    
-    /* ===== ESTILOS EXISTENTES ===== */
-    .produto-card {
-        background-color: #ffffff;
-        padding: 15px;
-        border-radius: 10px;
-        margin: 8px 0;
-        border-left: 4px solid #667eea;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-
-    .carrinho-item {
-        background-color: #f1f8ff;
-        padding: 10px;
-        border-radius: 6px;
-        margin: 5px 0;
-        color: #333333 !important;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
-
-    [data-testid="stMetricValue"] {
-        color: #667eea !important;
-        font-size: 2rem !important;
-        font-weight: bold;
-    }
-
-    .main {
-        background-color: #f8f9fa !important;
-    }
-
-    .stTextInput input, .stTextArea textarea, .stNumberInput input {
-        color: #000000 !important;
-        background-color: #ffffff !important;
-        border: 1px solid #ddd !important;
-        border-radius: 6px;
-        padding: 8px;
-    }
-    
-    .stButton button {
-        border-radius: 6px;
-        font-weight: 500;
-        transition: all 0.2s;
+        padding: 1rem 0;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# ========== MENU SUPERIOR ÚNICO ==========
+# ========== MENU SUPERIOR INTEGRADO COM HTML ==========
 usuario_logado = st.session_state.username if st.session_state.autenticado else "Usuário"
+pagina_atual = st.session_state.pagina_atual
 
-# Criar o menu como um único elemento HTML + botões do Streamlit
+# Determinar qual botão está ativo
+dashboard_active = "ativo" if pagina_atual == "Dashboard" else ""
+estoque_active = "ativo" if pagina_atual == "Estoque" else ""
+pdv_active = "ativo" if pagina_atual == "PDV" else ""
+relatorios_active = "ativo" if pagina_atual == "Relatórios" else ""
+config_active = "ativo" if pagina_atual == "Configurações" else ""
+
+# HTML do menu completo
 menu_html = f"""
-<div class="main-menu">
-    <div class="menu-left">
-        <span class="usuario-info">👤 {usuario_logado}</span>
+<div class="menu-integrado">
+    <div class="menu-container">
+        <span class="usuario-tag">👤 {usuario_logado}</span>
+        <div class="botoes-wrapper">
+            <a href="?pagina=Dashboard" class="btn-menu {dashboard_active}">🏠 Dashboard</a>
+            <a href="?pagina=Estoque" class="btn-menu {estoque_active}">📦 Estoque</a>
+            <a href="?pagina=PDV" class="btn-menu {pdv_active}">💵 PDV</a>
+            <a href="?pagina=Relatórios" class="btn-menu {relatorios_active}">📊 Relatórios</a>
+            <a href="?pagina=Configurações" class="btn-menu {config_active}">⚙️ Config</a>
+            <a href="?logout=true" class="btn-menu sair">🚪 Sair</a>
+            <a href="?atualizar=true" class="btn-menu atualizar">🔄 Atualizar</a>
+        </div>
     </div>
-    <div class="menu-right">
+</div>
 """
 
 st.markdown(menu_html, unsafe_allow_html=True)
 
-# Botões do menu (usando colunas para alinhamento horizontal)
-cols = st.columns(8)
+# ========== PROCESSAR PARÂMETROS DA URL ==========
+query_params = st.query_params
 
-with cols[0]:
-    if st.button("🏠 Dashboard", key="menu_dashboard", help="Dashboard"):
-        st.session_state.pagina_atual = "Dashboard"
-        st.rerun()
+if "pagina" in query_params:
+    pagina = query_params["pagina"]
+    if pagina in ["Dashboard", "Estoque", "PDV", "Relatórios", "Configurações"]:
+        if st.session_state.pagina_atual != pagina:
+            st.session_state.pagina_atual = pagina
+            st.rerun()
 
-with cols[1]:
-    if st.button("📦 Estoque", key="menu_estoque", help="Estoque"):
-        st.session_state.pagina_atual = "Estoque"
-        st.rerun()
+if "logout" in query_params:
+    st.session_state.autenticado = False
+    st.session_state.username = ""
+    st.session_state.user_id = None
+    st.session_state.pagina_atual = "Login"
+    st.session_state.carrinho = []
+    st.rerun()
 
-with cols[2]:
-    if st.button("💵 PDV", key="menu_pdv", help="PDV"):
-        st.session_state.pagina_atual = "PDV"
-        st.rerun()
-
-with cols[3]:
-    if st.button("📊 Relatórios", key="menu_relatorios", help="Relatórios"):
-        st.session_state.pagina_atual = "Relatórios"
-        st.rerun()
-
-with cols[4]:
-    if st.button("⚙️ Config", key="menu_config", help="Configurações"):
-        st.session_state.pagina_atual = "Configurações"
-        st.rerun()
-
-with cols[5]:
-    if st.button("🚪 Sair", key="menu_sair", help="Sair", type="secondary"):
-        st.session_state.autenticado = False
-        st.session_state.username = ""
-        st.session_state.user_id = None
-        st.session_state.pagina_atual = "Login"
-        st.session_state.carrinho = []
-        st.rerun()
-
-with cols[6]:
-    if st.button("🔄", key="menu_atualizar", help="Atualizar página"):
-        st.rerun()
-
-with cols[7]:
-    # Espaço vazio para alinhamento
-    st.empty()
-
-# Fechar as tags HTML do menu
-st.markdown("""
-    </div>
-</div>
-""", unsafe_allow_html=True)
-
-# CSS para destacar o botão ativo
-active_btn_css = f"""
-<style>
-    button[key="menu_{st.session_state.pagina_atual.lower()}"] {{
-        background: white !important;
-        color: #667eea !important;
-        font-weight: bold !important;
-    }}
-</style>
-"""
-if st.session_state.pagina_atual in ["Dashboard", "Estoque", "PDV", "Relatórios", "Configurações"]:
-    st.markdown(active_btn_css, unsafe_allow_html=True)
-
-# Início do conteúdo
-st.markdown('<div class="conteudo">', unsafe_allow_html=True)
+if "atualizar" in query_params:
+    st.rerun()
 
 # ========== CONTEÚDO DAS PÁGINAS ==========
-pagina_atual = st.session_state.pagina_atual
+st.markdown('<div class="conteudo">', unsafe_allow_html=True)
 
 # ===== DASHBOARD =====
 if pagina_atual == "Dashboard":
@@ -761,5 +679,4 @@ elif pagina_atual == "Configurações":
         if st.form_submit_button("💾 Salvar Configurações", use_container_width=True, type="primary"):
             st.success("✅ Configurações salvas com sucesso!")
 
-# Fechar a div do conteúdo
 st.markdown("</div>", unsafe_allow_html=True)
